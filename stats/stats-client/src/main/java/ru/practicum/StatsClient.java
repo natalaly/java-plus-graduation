@@ -1,69 +1,31 @@
 package ru.practicum;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
+import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import ru.practicum.exception.StatsBadRequestException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Component
-@Slf4j
-public class StatsClient {
+@FeignClient(name = "stats-server")
+public interface StatsClient {
 
-    private final WebClient webClient;
+  @PostMapping("/hit")
+  @ResponseStatus(HttpStatus.CREATED)
+  void saveEndpointHit(@Valid @RequestBody EndPointHitDto endpointHit);
 
-    public StatsClient(WebClient.Builder webClientBuilder, @Value("${stats.client.url}") String baseUrl) {
-        this.webClient = webClientBuilder.baseUrl(baseUrl).build();
-    }
+  @GetMapping("/stats")
+  ResponseEntity<List<ViewStatsDto>> getStats(
+      @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+      @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+      @RequestParam(required = false) List<String> uris,
+      @RequestParam(defaultValue = "false") boolean unique
+  );
 
-    public void saveHit(EndPointHitDto hit) {
-        webClient.post()
-                .uri("/hit")
-                .bodyValue(hit)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
-    }
-
-    public ViewStatsDto[] getStats(String start, String end, String[] uris, boolean unique) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString("/stats")
-                .queryParam("start", start)
-                .queryParam("end", end)
-                .queryParam("unique", unique);
-
-        for (String uriParam : uris) {
-            uriBuilder.queryParam("uris", uriParam);
-        }
-
-        String uri = uriBuilder.build().toUriString();
-        log.debug("Request URI: {}", uri);  // Логируем URL для запроса
-
-        try {
-            return webClient.get()
-                    .uri(uri)
-                    .retrieve()
-                    .onStatus(
-                            status -> status.is4xxClientError() || status.is5xxServerError(),
-                            clientResponse -> {
-                                if (clientResponse.statusCode().equals(HttpStatus.BAD_REQUEST)) {
-                                    return clientResponse.bodyToMono(String.class)
-                                            .flatMap(body -> Mono.error(new StatsBadRequestException("Bad Request: " + body)));
-                                } else {
-                                    return clientResponse.bodyToMono(String.class)
-                                            .flatMap(body -> Mono.error(new RuntimeException("Request failed: " + body)));
-                                }
-                            })
-                    .bodyToMono(ViewStatsDto[].class)
-                    .block();
-        } catch (StatsBadRequestException e) {
-            log.error("Bad Request Exception: {}", e.getMessage());
-            return new ViewStatsDto[0];
-        } catch (Exception e) {
-            log.error("Error during request: {}", e.getMessage());
-            return new ViewStatsDto[0];
-        }
-    }
 }

@@ -3,9 +3,7 @@ package ru.practicum.event.service;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -322,26 +320,31 @@ public class EventServiceImpl implements EventService {
 
   private void setViews(final List<Event> events) {
     log.debug("Setting views to the events list.");
+
     if (events == null || events.isEmpty()) {
       log.debug("Events list is empty.");
       return;
     }
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    final String start = events.stream()
+    final LocalDateTime start = events.stream()
         .min(Comparator.comparing(Event::getCreatedOn))
-        .map(event -> event.getCreatedOn().format(formatter))
-        .orElse(LocalDateTime.now().format(formatter));
+        .map(Event::getCreatedOn)
+        .orElse(LocalDateTime.now());
 
-    final String end = LocalDateTime.now().format(formatter);
+    final LocalDateTime end = LocalDateTime.now();
 
-    final String[] uris = events.stream()
+    final List<String> uris = events.stream()
         .map(e -> buildEventUri(e.getId()))
-        .toArray(String[]::new);
+        .toList();
 
     log.debug("Calling StatsClient with parameters: start={}, end={}, uris={}, unique={}.",
-        start, end, Arrays.toString(uris), true);
-    final Map<String, Long> views = Arrays.stream(statsClient.getStats(start, end, uris, true))
+        start, end, uris, true);
+
+    final List<ViewStatsDto> stats = statsClient.getStats(start, end, uris, true).getBody();
+
+    final Map<String, Long> views = stats == null
+        ? Collections.emptyMap()
+        : stats.stream()
         .collect(Collectors.toMap(ViewStatsDto::getUri, ViewStatsDto::getHits));
 
     events.forEach(event ->

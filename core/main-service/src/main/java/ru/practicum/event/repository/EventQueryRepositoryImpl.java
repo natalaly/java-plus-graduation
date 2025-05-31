@@ -236,13 +236,18 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     }
 
     private Map<String, Long> getViewsForEvents(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<String> uris) {
-        String start = rangeStart != null ? rangeStart.toString() : LocalDateTime.now().toString();
-        String end = rangeEnd != null ? rangeEnd.toString() : LocalDateTime.now().toString();
+        LocalDateTime start = rangeStart != null ? rangeStart : LocalDateTime.now();
+        LocalDateTime end = rangeEnd != null ? rangeEnd : LocalDateTime.now();
 
-        ViewStatsDto[] stats = statsClient.getStats(start, end, uris.toArray(new String[0]), true);
+        List<ViewStatsDto> stats = statsClient.getStats(start, end, uris, true).getBody();
 
-        return Arrays.stream(stats)
-                .collect(Collectors.toMap(ViewStatsDto::getUri, ViewStatsDto::getHits, (a, b) -> b));
+        return stats == null
+            ? Collections.emptyMap()
+            : stats.stream()
+                .collect(Collectors.toMap(
+                    ViewStatsDto::getUri,
+                    ViewStatsDto::getHits,
+                    (a, b) -> b));
     }
 
     private Map<Long, Long> getConfirmedRequests(List<Long> eventIds) {

@@ -12,7 +12,6 @@ services:
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=admin
 
-
   stats-db:
     image: postgres:16.1
     container_name: postgres-stats
@@ -29,7 +28,7 @@ services:
       retries: 10
 
   ewm-service:
-    build: main-service
+    build: core/main-service
     image: main-service
     container_name: evm-service
     ports:

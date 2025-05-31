@@ -72,6 +72,6 @@ public class PublicEventController {
         hitDto.setUri(request.getRequestURI());
         hitDto.setIp(request.getRemoteAddr());
         hitDto.setRequestTime(LocalDateTime.now());
-        statsClient.saveHit(hitDto);
+        statsClient.saveEndpointHit(hitDto);
     }
 }
