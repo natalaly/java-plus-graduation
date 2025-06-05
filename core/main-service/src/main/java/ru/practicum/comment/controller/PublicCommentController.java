@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.comment.dto.CommentDto;
-import ru.practicum.comment.service.CommentService;
+import ru.practicum.comment.service.CommentProcessingService;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/events/{eventId}/comments")
 public class PublicCommentController {
 
-  private final CommentService commentService;
+  private final CommentProcessingService commentService;
 
   @GetMapping
   public ResponseEntity<List<CommentDto>> getByEvent(

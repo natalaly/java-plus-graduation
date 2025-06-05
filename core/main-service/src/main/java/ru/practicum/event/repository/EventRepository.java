@@ -19,11 +19,10 @@ public interface EventRepository extends JpaRepository<Event, Long>, EventQueryR
       SELECT e AS event, COUNT(r.id) AS confirmedRequests
       FROM Event e
       JOIN FETCH e.category c
-      JOIN FETCH e.initiator u
-      LEFT JOIN FETCH ParticipationRequest r ON r.event.id = e.id  AND r.status = 'CONFIRMED'
+      LEFT JOIN FETCH ParticipationRequest r ON r.eventId = e.id  AND r.status = 'CONFIRMED'
       WHERE e.id = :eventId
-        AND e.initiator.id = :initiatorId
-      GROUP BY e, c.id, u.id
+        AND e.initiatorId = :initiatorId
+      GROUP BY e, c.id
       """)
   Optional<EventWithRequestCount> findByIdAndInitiatorId(@Param("eventId") Long eventId,
                                                          @Param("initiatorId") Long initiatorId);

@@ -1,20 +1,23 @@
 package ru.practicum.event.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.EndPointHitDto;
 import ru.practicum.StatsClient;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.GetEventPublicParam;
 import ru.practicum.event.enums.SortType;
-import ru.practicum.event.service.EventService;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import ru.practicum.event.service.EventProcessingService;
 
 @RestController
 @RequestMapping("/events")
@@ -22,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PublicEventController {
 
-    private final EventService eventService;
+    private final EventProcessingService eventService;
     private final StatsClient statsClient;
 
     @GetMapping
@@ -67,11 +70,13 @@ public class PublicEventController {
     }
 
     private void saveHitStatistic(HttpServletRequest request) {
+        log.info("Sending endpoint hit statistic info.");
         EndPointHitDto hitDto = new EndPointHitDto();
         hitDto.setApp("explore-with-me");
         hitDto.setUri(request.getRequestURI());
         hitDto.setIp(request.getRemoteAddr());
         hitDto.setRequestTime(LocalDateTime.now());
         statsClient.saveEndpointHit(hitDto);
+        log.info("Endpoint hit action saved.");
     }
 }

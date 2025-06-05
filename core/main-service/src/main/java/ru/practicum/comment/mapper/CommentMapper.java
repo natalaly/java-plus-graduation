@@ -5,9 +5,8 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.comment.model.Comment;
+import ru.practicum.dto.UserShortDto;
 import ru.practicum.event.model.Event;
-import ru.practicum.user.model.User;
-
 import java.util.Objects;
 
 @Slf4j
@@ -19,8 +18,8 @@ public class CommentMapper {
     Objects.requireNonNull(comment);
     return new CommentDto()
         .setId(comment.getId())
-        .setUserId(comment.getUser().getId())
-        .setEventId(comment.getEvent().getId())
+        .setUserId(comment.getUserId())
+        .setEventId(comment.getEventId())
         .setContent(comment.getContent())
         .setCreated(comment.getCreated())
         .setInitiator(comment.isInitiator());
@@ -35,13 +34,13 @@ public class CommentMapper {
         .toList();
   }
 
-  public Comment mapTo(final CommentDto comment, final User user, final Event event) {
+  public Comment mapTo(final CommentDto comment, final UserShortDto user, final Event event) {
     log.debug("Mapping commentDto {} to comment.", comment);
     Objects.requireNonNull(comment);
     return new Comment()
         .setId(comment.getId())
-        .setUser(user)
-        .setEvent(event)
+        .setUserId(user.getId())
+        .setEventId(event.getId())
         .setContent(comment.getContent());
   }
 

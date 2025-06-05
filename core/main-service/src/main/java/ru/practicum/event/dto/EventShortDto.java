@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import ru.practicum.category.dto.CategoryDto;
-import ru.practicum.user.dto.UserShortDto;
+import ru.practicum.dto.UserShortDto;
 
 /**
  * Used in the PRIVATE API - as RESPONSE

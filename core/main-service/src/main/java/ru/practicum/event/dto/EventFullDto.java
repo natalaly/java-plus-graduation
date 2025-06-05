@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import ru.practicum.category.dto.CategoryDto;
+import ru.practicum.dto.UserShortDto;
 import ru.practicum.event.model.Location;
-import ru.practicum.user.dto.UserShortDto;
 
 /**
  * Used in APIs :

@@ -1,4 +1,4 @@
-package ru.practicum.exception;
+package ru.practicum.exception.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;

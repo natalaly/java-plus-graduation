@@ -17,8 +17,8 @@ public class RequestMapper {
     Objects.requireNonNull(participationRequest);
     return new ParticipationRequestDto()
         .setId(participationRequest.getId())
-        .setRequester(participationRequest.getRequester().getId())
-        .setEvent(participationRequest.getEvent().getId())
+        .setRequester(participationRequest.getRequesterId())
+        .setEvent(participationRequest.getEventId())
         .setCreated(participationRequest.getCreated())
         .setStatus(participationRequest.getStatus().name());
   }

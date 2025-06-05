@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.comment.dto.GetCommentsAdminRequest;
-import ru.practicum.comment.service.CommentService;
+import ru.practicum.comment.service.CommentProcessingService;
 
 @RestController
 @RequestMapping("/admin/comments")
@@ -26,7 +26,7 @@ import ru.practicum.comment.service.CommentService;
 @Validated
 public class AdminCommentController {
 
-  private final CommentService commentService;
+  private final CommentProcessingService commentService;
 
   @GetMapping
   public ResponseEntity<List<CommentDto>> getComments(

@@ -108,11 +108,12 @@ public class CompilationServiceImpl implements CompilationService {
 
   private Compilation fetchCompilation(final Long compId) {
     log.debug("Fetching Compilation record ID {}.", compId);
-    return compilationRepository.findByIdEnriched(compId)
+    Compilation compilation = compilationRepository.findByIdEnriched(compId)
         .orElseThrow(() -> {
           log.warn("Compilation with ID {} was not found.", compId);
           return new NotFoundException("The required Compilation record was not found.");
         });
+    return compilation;
   }
 
   private void validateExists(final Long compId) {

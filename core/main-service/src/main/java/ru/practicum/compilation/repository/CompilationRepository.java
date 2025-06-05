@@ -10,7 +10,7 @@ import ru.practicum.compilation.model.Compilation;
 public interface CompilationRepository extends JpaRepository<Compilation, Long>,
     CompilationQueryRepository {
 
-  @EntityGraph(attributePaths = {"events", "events.category", "events.initiator"})
+  @EntityGraph(attributePaths = {"events", "events.category"})
   @Query("""
       SELECT c
       FROM Compilation c

@@ -22,9 +22,9 @@ import ru.practicum.event.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
-import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.event.dto.UpdateEventUserRequest;
-import ru.practicum.event.service.EventService;
+import ru.practicum.event.service.EventProcessingService;
+import ru.practicum.request.dto.ParticipationRequestDto;
 
 @RestController
 @RequestMapping("/users/{userId}/events")
@@ -33,7 +33,7 @@ import ru.practicum.event.service.EventService;
 @Validated
 public class PrivateEventController {
 
-  private final EventService eventService;
+  private final EventProcessingService eventService;
 
   @PostMapping
   public ResponseEntity<EventFullDto> addEvent(

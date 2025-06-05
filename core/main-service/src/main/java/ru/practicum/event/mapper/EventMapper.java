@@ -1,12 +1,12 @@
 package ru.practicum.event.mapper;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
@@ -16,26 +16,23 @@ import ru.practicum.event.enums.State;
 import ru.practicum.event.model.Event;
 import ru.practicum.request.mapper.RequestMapper;
 import ru.practicum.request.model.ParticipationRequest;
-import ru.practicum.user.dto.UserDto;
-import ru.practicum.user.mappers.UserMapper;
 
 @UtilityClass
 @Slf4j
 public class EventMapper {
 
-  public static Event toEvent(final NewEventDto eventDto, final UserDto initiator, final CategoryDto category) {
-    log.debug("Mapping NewEventDto {} to the Event.", eventDto);
+  public static Event toEvent(final NewEventDto eventDto, final Long initiatorId) {
+    log.debug("Mapping NewEventDto data {} to the Event.", eventDto);
     Objects.requireNonNull(eventDto);
-    Objects.requireNonNull(initiator);
+    Objects.requireNonNull(initiatorId);
     return new Event()
         .setAnnotation(eventDto.getAnnotation())
-        .setCategory(CategoryMapper.toCategory(category))
         .setDescription(eventDto.getDescription())
         .setEventDate(eventDto.getEventDate())
         .setLocation(eventDto.getLocation())
         .setPaid(eventDto.getPaid())
         .setCreatedOn(LocalDateTime.now())
-        .setInitiator(UserMapper.mapToUser(initiator))
+        .setInitiatorId(initiatorId)
         .setParticipantLimit(eventDto.getParticipantLimit())
         .setTitle(eventDto.getTitle())
         .setRequestModeration(eventDto.getRequestModeration())
@@ -51,7 +48,7 @@ public class EventMapper {
         .setCategory(CategoryMapper.toCategoryDto(event.getCategory()))
         .setConfirmedRequests(event.getConfirmedRequests())
         .setEventDate(event.getEventDate())
-        .setInitiator(UserMapper.mapToUserShortDto(event.getInitiator()))
+        .setInitiator(event.getInitiator())
         .setPaid(event.getPaid())
         .setTitle(event.getTitle())
         .setViews(event.getViews())
@@ -73,13 +70,13 @@ public class EventMapper {
         event.getConfirmedRequests(),
         event.getEventDate(),
         event.getId(),
-        UserMapper.mapToUserShortDto(event.getInitiator()),
+        event.getInitiator(),
         event.getPaid(),
         event.getTitle(),
         event.getViews());
   }
 
-  public static List<EventShortDto> toShortDto(final List<Event> events) {
+  public static List<EventShortDto> toShortDto(final Collection<Event> events) {
     if (events == null || events.isEmpty()) {
       return Collections.emptyList();
     }

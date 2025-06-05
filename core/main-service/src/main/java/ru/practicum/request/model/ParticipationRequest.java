@@ -7,8 +7,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -17,8 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import ru.practicum.event.model.Event;
-import ru.practicum.user.model.User;
 
 
 @Entity
@@ -35,13 +31,11 @@ public class ParticipationRequest {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne
-  @JoinColumn(name = "event_id")
-  private Event event;
+  @Column(name = "event_id")
+  private Long eventId;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id")
-  private User requester;
+  @Column(name = "user_id")
+  private Long requesterId;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
@@ -49,9 +43,8 @@ public class ParticipationRequest {
 
   private LocalDateTime created = LocalDateTime.now();
 
-  public ParticipationRequest(final User user, final Event event) {
-    this.requester = user;
-    this.event = event;
-    this.status = StatusRequest.PENDING;
+  public ParticipationRequest(final Long userId, final Long event) {
+    this.requesterId = userId;
+    this.eventId = event;
   }
 }

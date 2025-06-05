@@ -22,8 +22,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import ru.practicum.category.model.Category;
+import ru.practicum.dto.UserShortDto;
 import ru.practicum.event.enums.State;
-import ru.practicum.user.model.User;
 
 @Entity
 @Table(name = "event")
@@ -43,7 +43,7 @@ public class Event {
   @Column(name = "annotation", length = 2000, nullable = false)
   private String annotation;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @ManyToOne(fetch = FetchType.EAGER, optional = false)
   @JoinColumn(name = "category_id")
   private Category category;
 
@@ -63,9 +63,11 @@ public class Event {
   @Column(name = "created_on", nullable = false)
   private LocalDateTime createdOn;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "initiator_id", nullable = false)
-  private User initiator;
+  @Column(name = "initiator_id", nullable = false)
+  private Long initiatorId;
+
+  @Transient
+  private UserShortDto initiator;
 
   @Column
   private Integer participantLimit = 0;
