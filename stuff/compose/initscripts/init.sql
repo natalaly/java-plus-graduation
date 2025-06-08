@@ -5,7 +5,7 @@ CREATE DATABASE ewm_stats_db;
 CREATE DATABASE ewm_user;
 -- CREATE DATABASE ewm_compilation;
 -- CREATE DATABASE ewm_category;
--- CREATE DATABASE ewm_comment;
+CREATE DATABASE ewm_comment;
 -- CREATE DATABASE ewm_subscription;
 -- CREATE DATABASE ewm_rating;
 -- CREATE DATABASE ewm_location;

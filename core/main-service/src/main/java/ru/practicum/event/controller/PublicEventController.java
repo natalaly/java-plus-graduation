@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.EndPointHitDto;
 import ru.practicum.StatsClient;
-import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.GetEventPublicParam;
 import ru.practicum.event.enums.SortType;
@@ -63,7 +63,7 @@ public class PublicEventController {
     @GetMapping("/{eventId}")
     public EventFullDto getEventsById(@PathVariable Long eventId, HttpServletRequest request) {
         log.info("Request received GET /events with id {}", eventId);
-        EventFullDto event = eventService.getEvent(eventId);
+        EventFullDto event = eventService.getPublishedEvent(eventId);
         log.info("Event received: {}", event);
         saveHitStatistic(request);
         return event;

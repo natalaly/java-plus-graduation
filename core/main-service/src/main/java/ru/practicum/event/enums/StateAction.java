@@ -6,6 +6,7 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ru.practicum.enums.State;
 
 @Getter
 @RequiredArgsConstructor
@@ -13,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 public enum StateAction {
 
   PUBLISH_EVENT(Role.ADMIN, State.PUBLISHED),
-  REJECT_EVENT(Role.ADMIN,State.CANCELED),
+  REJECT_EVENT(Role.ADMIN, State.CANCELED),
 
   SEND_TO_REVIEW(Role.USER,State.PENDING),
   CANCEL_REVIEW(Role.USER,State.CANCELED);

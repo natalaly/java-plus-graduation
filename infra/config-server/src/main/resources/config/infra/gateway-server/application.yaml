@@ -3,11 +3,18 @@ spring:
     gateway:
       discovery.locator.enabled: true
       routes:
-        # user-service TODO until separated compleatly
+        # user-service
         - id: user_service_route
           uri: lb://user-service
           predicates:
             - Path=/admin/users/**
+
+        # comment-service
+        - id: comment_service_route
+          uri: lb://comment-service
+          predicates:
+            - Path=/admin/comments/**, /users/{userId}/comments/**, /events/{eventId}/comments/**
+
         # main-service
         - id: main_service_route
           uri: lb://main-service

@@ -3,6 +3,7 @@ package ru.practicum.event.service;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Set;
+import ru.practicum.enums.State;
 import ru.practicum.event.dto.GetEventAdminRequest;
 import ru.practicum.event.dto.GetEventPublicParam;
 import ru.practicum.event.dto.UpdateEventAdminRequest;
@@ -32,7 +33,12 @@ public interface EventService {
   Event getEvent(Long initiatorId, Long eventId);
 
   /**
-   * Retrieves detailed information about a published event by its ID.
+   * Retrieves detailed information about an event with certain Status and ID.
+   */
+  Event getEvent(Long eventId, State state);
+
+  /**
+   * Retrieves detailed information about an event by its ID.
    */
   Event getEvent(Long eventId);
 
@@ -56,15 +62,9 @@ public interface EventService {
    */
   Set<Event> getEvents(Set<Long> events);
 
-//  /**
-//   * Retrieves information about participation requests for the current user's event.
-//   */
-//  List<ParticipationRequestDto> getRequests(Long initiatorId, Long eventId);
-//
-//  /**
-//   * Updates the participation request statuses for the specified event of the current user. The
-//   * statuses can be changed to either {@code CONFIRMED} or {@code REJECTED}.
-//   */
-//  EventRequestStatusUpdateResult updateRequestsStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest updateStatusDto);
+  /**
+   * Checks whether the event exists in the DB.
+   */
+  boolean eventExistsById(Long eventId);
 
 }

@@ -18,8 +18,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.StatsClient;
 import ru.practicum.ViewStatsDto;
 import ru.practicum.client.UserClient;
+import ru.practicum.enums.State;
 import ru.practicum.dto.UserShortDto;
-import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.dto.EventFullDto;
 import ru.practicum.event.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.dto.EventShortDto;
@@ -125,15 +126,33 @@ public class EventProcessingServiceImpl implements EventProcessingService {
   }
 
   /**
-   * Retrieves detailed information about a published event by its ID.
+   * Retrieves detailed information about an event by its ID with any state.
    *
    * @param eventId
    */
   @Override
   public EventFullDto getEvent(final Long eventId) {
-    log.debug("Getting published event with ID={}.", eventId);
+    log.debug("Getting event with ID={}.", eventId);
 
     final Event event = eventService.getEvent(eventId);
+
+    event.setInitiator(getUser(event.getInitiatorId()));
+    setViews(List.of(event));
+    setConfirmedRequests(List.of(event));
+
+    return EventMapper.toFullDto(event);
+  }
+
+  /**
+   * Retrieves detailed information about a published event by its ID.
+   *
+   * @param eventId
+   */
+  @Override
+  public EventFullDto getPublishedEvent(final Long eventId) {
+    log.debug("Getting published event with ID={}.", eventId);
+
+    final Event event = eventService.getEvent(eventId, State.PUBLISHED);
 
     event.setInitiator(getUser(event.getInitiatorId()));
     setViews(List.of(event));
@@ -264,6 +283,17 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     }
 
     return processRequestsWithLimit(requestsToUpdate, newStatus, availableSlots);
+  }
+
+  /**
+   * Provides information wherever the vent with given ID exists in the system.
+   *
+   * @param eventId
+   */
+  @Override
+  public boolean eventExists(final Long eventId) {
+    log.debug("Checking if event with ID={} exists.", eventId);
+    return eventService.eventExistsById(eventId);
   }
 
   private void setInitiators(final Collection<Event> events) {

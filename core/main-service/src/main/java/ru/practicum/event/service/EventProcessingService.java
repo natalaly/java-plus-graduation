@@ -3,7 +3,7 @@ package ru.practicum.event.service;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Set;
-import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.dto.EventFullDto;
 import ru.practicum.event.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.dto.EventShortDto;
@@ -39,6 +39,11 @@ public interface EventProcessingService {
   /**
    * Retrieves detailed information about a published event by its ID.
    */
+  EventFullDto getPublishedEvent(Long eventId);
+
+  /**
+   * Retrieves detailed information about an event by its ID.
+   */
   EventFullDto getEvent(Long eventId);
 
   /**
@@ -72,4 +77,8 @@ public interface EventProcessingService {
    */
   EventRequestStatusUpdateResult updateRequestsStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest updateStatusDto);
 
+  /**
+   * Provides information wherever the vent with given ID exists in the system.
+   */
+  boolean eventExists(Long eventId);
 }

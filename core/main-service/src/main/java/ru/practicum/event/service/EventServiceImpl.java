@@ -19,7 +19,7 @@ import ru.practicum.event.dto.GetEventAdminRequest;
 import ru.practicum.event.dto.GetEventPublicParam;
 import ru.practicum.event.dto.UpdateEventAdminRequest;
 import ru.practicum.event.dto.UpdateEventUserRequest;
-import ru.practicum.event.enums.State;
+import ru.practicum.enums.State;
 import ru.practicum.event.enums.StateAction;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.Location;
@@ -48,7 +48,6 @@ public class EventServiceImpl implements EventService {
     final Event eventToSave = newEvent.setCategory(category);
     return eventRepository.save(eventToSave);
   }
-
 
   /**
    * Updates specified event with the provided data (Performed by ADMIN).
@@ -96,12 +95,20 @@ public class EventServiceImpl implements EventService {
    */
   @Transactional(readOnly = true)
   @Override
-  public Event getEvent(final Long eventId) {
-    log.debug("Fetching published event ID={}.", eventId);
-    Event event = eventRepository.findByIdAndState(eventId, State.PUBLISHED)
+  public Event getEvent(final Long eventId, final State state) {
+    log.debug("Fetching event ID={} and state {}.", eventId, state.name());
+    return eventRepository.findByIdAndState(eventId, state)
         .orElseThrow(() -> new NotFoundException(
-            "Event with id " + eventId + " not found or not published"));
-    return event;
+            "Event with id " + eventId + " not found or not published."));
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public Event getEvent(final Long eventId) {
+    log.debug("Fetching event ID={}.", eventId);
+    return eventRepository.findById(eventId)
+        .orElseThrow(() -> new NotFoundException(
+            "Event with id " + eventId + " not found."));
   }
 
   /**
@@ -170,6 +177,13 @@ public class EventServiceImpl implements EventService {
     return eventIds.isEmpty() ? Set.of() : eventRepository.findAllDistinctByIdIn(eventIds);
   }
 
+  /**
+   * Checks whether the event exists in the DB.
+   */
+  @Override
+  public boolean eventExistsById(Long eventId) {
+    return eventRepository.existsById(eventId);
+  }
 
   private Event fetchEvent(final Long eventId, final Long initiatorId) {
     log.debug("Fetching event with ID {} and initiator ID {}.", eventId, initiatorId);
@@ -197,7 +211,6 @@ public class EventServiceImpl implements EventService {
     );
     applyPatchStateAction(event, param.getStateAction(),true);
   }
-
 
   private void patchEventFields(final Event target, final UpdateEventUserRequest dataSource) {
     log.debug("Applying the patch on Event fields bu user.");

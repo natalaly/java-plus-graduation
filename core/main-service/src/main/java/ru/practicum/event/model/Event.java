@@ -23,7 +23,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import ru.practicum.category.model.Category;
 import ru.practicum.dto.UserShortDto;
-import ru.practicum.event.enums.State;
+import ru.practicum.enums.State;
 
 @Entity
 @Table(name = "event")

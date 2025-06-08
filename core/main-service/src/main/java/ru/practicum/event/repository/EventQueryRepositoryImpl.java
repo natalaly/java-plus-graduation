@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.StatsClient;
 import ru.practicum.event.enums.SortType;
-import ru.practicum.event.enums.State;
+import ru.practicum.enums.State;
 import ru.practicum.event.model.Event;
 
 @Slf4j

@@ -12,6 +12,7 @@ import ru.practicum.category.dto.*;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.dto.CategoryDto;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.AlreadyExistsException;
 import ru.practicum.exception.ConflictException;

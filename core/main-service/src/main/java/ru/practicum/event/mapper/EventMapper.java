@@ -8,11 +8,11 @@ import java.util.Objects;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.category.mapper.CategoryMapper;
-import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.dto.EventFullDto;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
-import ru.practicum.event.enums.State;
+import ru.practicum.enums.State;
 import ru.practicum.event.model.Event;
 import ru.practicum.request.mapper.RequestMapper;
 import ru.practicum.request.model.ParticipationRequest;
@@ -54,7 +54,7 @@ public class EventMapper {
         .setViews(event.getViews())
         .setCreatedOn(event.getCreatedOn())
         .setDescription(event.getDescription())
-        .setLocation(event.getLocation())
+        .setLocation(LocationMapper.toDto(event.getLocation()))
         .setParticipantLimit(event.getParticipantLimit())
         .setPublishedOn(event.getPublishedOn())
         .setRequestModeration(event.getRequestModeration())
