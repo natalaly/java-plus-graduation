@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
-import ru.practicum.request.model.StatusRequest;
+import ru.practicum.enums.StatusRequest;
 
 public class StatusRequestValidator implements ConstraintValidator<ValidateStatusRequest, StatusRequest> {
 

@@ -16,11 +16,11 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class CategoryDto {
 
-    @NotBlank
-    @NotNull
-    private Long id;
+  @NotBlank
+  @NotNull
+  private Long id;
 
-    @NotBlank(message = "name should not be blank.")
-    @Size(min = 1, max = 50, message = "name should not exceed max length.")
-    private String name;
+  @NotBlank(message = "name should not be blank.")
+  @Size(min = 1, max = 50, message = "name should not exceed max length.")
+  private String name;
 }

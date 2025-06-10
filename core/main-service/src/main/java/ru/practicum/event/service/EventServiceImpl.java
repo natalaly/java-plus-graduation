@@ -60,8 +60,9 @@ public class EventServiceImpl implements EventService {
 
     validateEventUpdatable(event,param);
     patchEventFields(event, param);
-
-    return eventRepository.save(event);
+    Event eventUpdated = eventRepository.save(event);
+    log.debug("Event with ID={} was updated successfully in the DB.", eventId);
+    return eventUpdated;
   }
 
   /**
@@ -188,7 +189,6 @@ public class EventServiceImpl implements EventService {
   private Event fetchEvent(final Long eventId, final Long initiatorId) {
     log.debug("Fetching event with ID {} and initiator ID {}.", eventId, initiatorId);
     return eventRepository.findByIdAndInitiatorId(eventId, initiatorId)
-        .map(result -> result.getEvent().setConfirmedRequests(result.getConfirmedRequests()))
         .orElseThrow(
             () -> {
               log.warn("Event ID={} with initiator ID={} not found.", eventId, initiatorId);

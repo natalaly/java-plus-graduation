@@ -14,7 +14,6 @@ import lombok.Data;
 public class NewCompilationDto {
 
   private Set<Long> events;
-
   private Boolean pinned = false;
 
   @NotBlank(message = "The title is required and cannot be blank.")

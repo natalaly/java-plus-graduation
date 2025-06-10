@@ -30,7 +30,8 @@ public class EventShortDto {
   private String title;
   private Long views;
 
-  public EventShortDto(String annotation, CategoryDto category, LocalDateTime eventDate, Long id, UserShortDto initiator, Boolean paid, String title) {
+  public EventShortDto(String annotation, CategoryDto category, LocalDateTime eventDate, Long id,
+                       UserShortDto initiator, Boolean paid, String title) {
     this.annotation = annotation;
     this.category = category;
     this.eventDate = eventDate;

@@ -16,11 +16,8 @@ import ru.practicum.event.dto.EventShortDto;
 public class CompilationDto {
 
   private Set<EventShortDto> events = new HashSet<>();
-
   private Long id;
-
   private Boolean pinned;
-
   private String title;
 
 }

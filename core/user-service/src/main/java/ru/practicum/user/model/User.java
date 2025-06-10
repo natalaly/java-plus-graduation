@@ -21,10 +21,11 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(of = "id")
 @Accessors(chain = true)
 public class User {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-    private String name;
-    private String email;
+  private String name;
+  private String email;
 }

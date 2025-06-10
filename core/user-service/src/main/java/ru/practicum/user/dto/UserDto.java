@@ -12,14 +12,14 @@ import org.hibernate.validator.constraints.Length;
 @Accessors(chain = true)
 public class UserDto {
 
-    private Long id;
+  private Long id;
 
-    @NotBlank(message = "name should not be blank.")
-    @Length(min = 2, max = 250)
-    private String name;
+  @NotBlank(message = "name should not be blank.")
+  @Length(min = 2, max = 250)
+  private String name;
 
-    @NotBlank(message = "email should not be blank.")
-    @Length(min = 6, max = 254)
-    @Email
-    private String email;
+  @NotBlank(message = "email should not be blank.")
+  @Length(min = 6, max = 254)
+  @Email
+  private String email;
 }

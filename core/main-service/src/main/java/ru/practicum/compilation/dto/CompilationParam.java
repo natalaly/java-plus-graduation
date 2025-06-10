@@ -8,9 +8,7 @@ import lombok.Data;
 public class CompilationParam {
 
   private  Boolean pinned;
-
   private int from;
-
   private int size;
 
 }

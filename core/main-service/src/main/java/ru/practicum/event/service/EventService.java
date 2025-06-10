@@ -33,14 +33,14 @@ public interface EventService {
   Event getEvent(Long initiatorId, Long eventId);
 
   /**
-   * Retrieves detailed information about an event with certain Status and ID.
-   */
-  Event getEvent(Long eventId, State state);
-
-  /**
    * Retrieves detailed information about an event by its ID.
    */
   Event getEvent(Long eventId);
+
+  /**
+   * Retrieves detailed information about an event with certain Status and ID.
+   */
+  Event getEvent(Long eventId, State state);
 
   /**
    * Retrieves all existed in DB events (performed by ADMIN).
@@ -48,14 +48,14 @@ public interface EventService {
   List<Event> getEvents(GetEventAdminRequest param);
 
   /**
-   * Retries all events created by current user.
-   */
-  List<Event> getEvents(Long initiatorId, Integer from, Integer size);
-
-  /**
    * Retrieving published events with filtering options.
    */
   List<Event> getEvents(GetEventPublicParam param, HttpServletRequest request);
+
+  /**
+   * Retries all events created by current user.
+   */
+  List<Event> getEvents(Long initiatorId, Integer from, Integer size);
 
   /**
    *  Retrieves a set of events based on the provided event IDs.

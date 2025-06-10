@@ -28,38 +28,26 @@ import lombok.experimental.Accessors;
 public class EventFullDto {
 
   private String annotation;
-
   private CategoryDto category;
-
   private Integer confirmedRequests;
 
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime createdOn;
-
   private String description;
 
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime eventDate;
-
   private Long id;
-
   private UserShortDto initiator;
-
   private LocationDto location;
-
   private Boolean paid;
-
   private Integer participantLimit = 0;
 
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime publishedOn;
-
   private Boolean requestModeration = true;
-
   private String state;
-
   private String title;
-
   private Long views;
 
   public EventFullDto(String annotation, CategoryDto category, Integer confirmedRequests,

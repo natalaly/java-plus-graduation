@@ -22,6 +22,13 @@ spring:
     username: postgres
     password: password
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      adjust-dates-to-context-time-zone: false
+    date-format: yyyy-MM-dd HH:mm:ss
+
   cloud:
     openfeign:
       circuitbreaker:
@@ -44,7 +51,7 @@ resilience4j.circuitbreaker:
   timelimiter:
     configs:
       values:
-        timeout-duration: 7s                            # Allowed duration for a microservice call.
+        timeout-duration: 10s                            # Allowed duration for a microservice call.
 
 server:
   port: 0

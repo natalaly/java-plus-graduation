@@ -9,27 +9,22 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.enums.State;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.model.EventWithRequestCount;
 
 public interface EventRepository extends JpaRepository<Event, Long>, EventQueryRepository {
 
   Page<Event> findAllByInitiatorId(Long initiatorId, PageRequest page);
 
   @Query("""
-      SELECT e AS event, COUNT(r.id) AS confirmedRequests
+      SELECT e
       FROM Event e
       JOIN FETCH e.category c
-      LEFT JOIN FETCH ParticipationRequest r ON r.eventId = e.id  AND r.status = 'CONFIRMED'
       WHERE e.id = :eventId
         AND e.initiatorId = :initiatorId
-      GROUP BY e, c.id
       """)
-  Optional<EventWithRequestCount> findByIdAndInitiatorId(@Param("eventId") Long eventId,
-                                                         @Param("initiatorId") Long initiatorId);
+  Optional<Event> findByIdAndInitiatorId(@Param("eventId") Long eventId,
+                                         @Param("initiatorId") Long initiatorId);
 
   Optional<Event> findByIdAndState(Long id, State state);
-
-  boolean existsByIdAndInitiatorId(Long eventId, Long userId);
 
   boolean existsByCategoryId(Long id);
 

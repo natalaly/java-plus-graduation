@@ -1,6 +1,5 @@
 package ru.practicum.event.controller;
 
-
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +24,7 @@ public class InternalEventController implements EventOperations {
   @Override
   @GetMapping("/{eventId}")
   public EventFullDto getEvent(@PathVariable("eventId") @Positive Long eventId) {
-    log.info("Request received GET /internal/events/{}", eventId);
+    log.info("Request received GET /internal/events/{} tio retrieve an event.", eventId);
     final EventFullDto event = eventService.getEvent(eventId);
     log.info("Sending event ID={} data.", event.getId());
     return event;
@@ -34,11 +33,12 @@ public class InternalEventController implements EventOperations {
   @Override
   @GetMapping("/{eventId}/exists")
   public boolean existsById(@PathVariable("eventId") @Positive Long eventId) {
-    log.info("Received request to check if event with id {} exists.", eventId);
+    log.info("Received request  GET /internal/events/{}/ exists to check if event exists.",
+        eventId);
     final boolean eventExist = eventService.eventExists(eventId);
     log.info("Returning response: event ID {} exist: {}", eventId, eventExist);
     return eventExist;
   }
 
-  }
+}
 

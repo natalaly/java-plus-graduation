@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.StatsClient;
 import ru.practicum.ViewStatsDto;
-import ru.practicum.client.UserClient;
-import ru.practicum.enums.State;
-import ru.practicum.dto.UserShortDto;
+import ru.practicum.client.request.RequestClient;
+import ru.practicum.client.user.UserClient;
 import ru.practicum.dto.EventFullDto;
+import ru.practicum.dto.ParticipationRequestDto;
+import ru.practicum.dto.UserShortDto;
+import ru.practicum.enums.State;
+import ru.practicum.enums.StatusRequest;
 import ru.practicum.event.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.dto.EventShortDto;
@@ -33,11 +34,6 @@ import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.request.dto.ParticipationRequestDto;
-import ru.practicum.request.mapper.RequestMapper;
-import ru.practicum.request.model.ParticipationRequest;
-import ru.practicum.request.model.StatusRequest;
-import ru.practicum.request.repository.RequestRepository;
 
 @Service
 @Slf4j
@@ -45,8 +41,9 @@ import ru.practicum.request.repository.RequestRepository;
 public class EventProcessingServiceImpl implements EventProcessingService {
 
   private final EventService eventService;
+
   private final UserClient userClient;
-  private final RequestRepository requestRepository;
+  private final RequestClient requestClient;
   private final StatsClient statsClient;
 
   /**
@@ -179,7 +176,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
   }
 
   /**
-   * Retries all events created by current user.
+   * Retries all events created by the current user.
    *
    * @param initiatorId
    * @param from
@@ -192,7 +189,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     validateUserExist(initiatorId);
     final UserShortDto initiator = getUser(initiatorId);
     final List<Event> events = eventService.getEvents(initiatorId, from, size);
-    events.forEach(event -> event.setInitiator(initiator));
+    setInitiators(events);
     setConfirmedRequests(events);
     setViews(events);
     return EventMapper.toShortDto(events);
@@ -214,19 +211,6 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     return events.stream()
         .map(EventMapper::toShortDto)
         .toList();
-  }
-
-  /**
-   * Retrieves a set of events based on the provided event IDs.
-   *
-   * @param eventIds
-   */
-  @Override
-  public Set<EventShortDto> getEvents(final Set<Long> eventIds) {
-    log.debug("Retrieving events by list of event IDs: {}.", eventIds);
-    Set<Event> events = eventService.getEvents(eventIds);
-    setInitiators(events);
-    return new HashSet<>(EventMapper.toShortDto(events));
   }
 
   /**
@@ -259,19 +243,21 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     log.debug("Updating statuses for the event participation requests {}  "
             + "for the event ID {}, performed by current user/initiator {}.",
         updateStatusDto, eventId, userId);
+
     validateUserExist(userId);
     final Event event = eventService.getEvent(userId, eventId);
-
+    setConfirmedRequests(List.of(event));
     final StatusRequest newStatus = updateStatusDto.getStatus();
     final Boolean isModerated = event.getRequestModeration();
     final Integer participantLimit = event.getParticipantLimit();
     final Integer confirmed = event.getConfirmedRequests();
 
     if (!isModerated || participantLimit == 0) {
+      log.debug("Event is not moderated or participant limit is 0. ");
       return autoConfirmRequests(updateStatusDto.getRequestIds(), eventId);
     }
 
-    final List<ParticipationRequest> requestsToUpdate = getPendingRequests(
+    final List<ParticipationRequestDto> requestsToUpdate = getPendingRequests(
         updateStatusDto.getRequestIds(), eventId);
 
     int availableSlots = participantLimit - confirmed;
@@ -330,27 +316,63 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     log.debug("Success: user ID={} is not null and exists.", userId);
   }
 
+  private void setConfirmedRequests(final List<Event> events) {
+    log.debug("Setting Confirmed requests to the events list, size {}.", events.size());
+    if (events.isEmpty()) {
+      log.debug("Events list is empty.");
+      return;
+    }
+    final List<Long> eventIds = events.stream().map(Event::getId).toList();
+
+    final Map<Long, List<ParticipationRequestDto>> confirmedRequests = getConfirmedRequests(eventIds);
+
+    events.forEach(event ->
+        event.setConfirmedRequests(
+            confirmedRequests.getOrDefault(event.getId(), List.of()).size()));
+    log.debug("Confirmed requests has set successfully to the events with IDs {}.", eventIds);
+  }
+
+  private Map<Long, List<ParticipationRequestDto>> getConfirmedRequests(final List<Long> eventIds) {
+    log.debug("Sending request to get confirmed requests for the events with IDs {}.", eventIds);
+    final Map<Long, List<ParticipationRequestDto>> confirmedRequests =
+        requestClient.getConfirmedRequests(eventIds);
+    log.debug("Successfully retrieved {} confirmed requests.", confirmedRequests.size());
+    return confirmedRequests;
+  }
+
   private List<ParticipationRequestDto> getRequestsByEventId(final Long eventId) {
-    log.debug("Getting requests for the event ID {} .", eventId);
-    return RequestMapper.mapToDto(
-        requestRepository.findAllByEventId(eventId));
+    log.debug("Sending request to get participation requests for the event ID {} .", eventId);
+    List<ParticipationRequestDto> requests = requestClient.getAllEventRequests(eventId);
+    log.debug("Successfully retrieved requests for the event ID {} .", eventId);
+    return requests;
   }
 
   private EventRequestStatusUpdateResult autoConfirmRequests(final List<Long> requestIds,
                                                              final Long eventId) {
-    log.debug("Confirming All requests.");
-    final List<ParticipationRequest> requestsToUpdate = getPendingRequests(requestIds, eventId);
-    requestsToUpdate.forEach(request -> request.setStatus(StatusRequest.CONFIRMED));
-    requestRepository.saveAll(requestsToUpdate);
+    log.debug("Automatically confirming All requests for event ID {}.", eventId);
+    final List<ParticipationRequestDto> requestsToUpdate = getPendingRequests(requestIds, eventId);
+    requestsToUpdate.forEach(request -> request.setStatus(StatusRequest.CONFIRMED.name()));
 
-    return EventMapper.toEventRequestStatusUpdateResult(requestsToUpdate, Collections.emptyList());
+    final List<ParticipationRequestDto> confirmedRequests = updateRequests(requestsToUpdate);
+    return EventMapper.toEventRequestStatusUpdateResult(confirmedRequests, Collections.emptyList());
   }
 
-  private List<ParticipationRequest> getPendingRequests(final List<Long> requestIds,
-                                                        final Long eventId) {
-    log.debug("Fetching participation requests with IDs:{} and PENDING status.", requestIds);
-    final List<ParticipationRequest> requests = requestRepository.findAllByIdInAndEventIdAndStatus(
-        requestIds, eventId, StatusRequest.PENDING);
+  private List<ParticipationRequestDto> updateRequests(
+      final List<ParticipationRequestDto> requestsToUpdate) {
+    log.debug("Sending request to update {} requests to status CONFIRMED.", requestsToUpdate.size());
+    final List<ParticipationRequestDto> updated = requestClient.updateRequests(requestsToUpdate);
+    log.debug("Successfully updated {} requests to status CONFIRMED.", updated.size());
+    return updated;
+  }
+
+  private List<ParticipationRequestDto> getPendingRequests(final List<Long> requestIds,
+                                                           final Long eventId) {
+    log.debug("Sending request to get participation requests with IDs:{} and PENDING status.",
+        requestIds);
+    final List<ParticipationRequestDto> requests = requestClient.getEventPendingRequests(requestIds,
+        eventId);
+    log.debug("Successfully retrieved {} requests with IDs : {}.", requests.size(), requestIds);
+
     if (requestIds.size() > requests.size()) {
       log.warn("StatusRequest should be PENDING for all requests to be updated.");
       throw new ConflictException(
@@ -360,53 +382,34 @@ public class EventProcessingServiceImpl implements EventProcessingService {
   }
 
   private EventRequestStatusUpdateResult processRequestsWithLimit(
-      final List<ParticipationRequest> requestsToUpdate,
+      final List<ParticipationRequestDto> requestsToUpdate,
       final StatusRequest newStatus, final Integer availableSlots) {
 
     log.debug("Processing requests {} to update status with {}. Available slots ={}",
         requestsToUpdate, newStatus, availableSlots);
 
-    final List<ParticipationRequest> confirmedRequests = new ArrayList<>();
-    final List<ParticipationRequest> rejectedRequests = new ArrayList<>();
+    final List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
+    final List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
     int available = availableSlots;
 
     if (newStatus.equals(StatusRequest.REJECTED)) {
-      requestsToUpdate.forEach(r -> r.setStatus(newStatus));
-      rejectedRequests.addAll(requestRepository.saveAll(requestsToUpdate));
+      requestsToUpdate.forEach(r -> r.setStatus(newStatus.name()));
+      rejectedRequests.addAll(updateRequests(requestsToUpdate));
     } else {
-      for (ParticipationRequest request : requestsToUpdate) {
+      for (ParticipationRequestDto request : requestsToUpdate) {
         if (available > 0) {
-          request.setStatus(StatusRequest.CONFIRMED);
+          request.setStatus(StatusRequest.CONFIRMED.name());
           confirmedRequests.add(request);
           available--;
         } else {
-          request.setStatus(StatusRequest.REJECTED);
+          request.setStatus(StatusRequest.REJECTED.name());
           rejectedRequests.add(request);
         }
       }
     }
-    requestRepository.saveAll(confirmedRequests);
-    requestRepository.saveAll(rejectedRequests);
+    updateRequests(confirmedRequests);
+    updateRequests(rejectedRequests);
     return EventMapper.toEventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
-  }
-
-  private void setConfirmedRequests(final List<Event> events) {
-    log.debug("Setting Confirmed requests to the events list {}.", events);
-    if (events.isEmpty()) {
-      log.debug("Events list is empty.");
-      return;
-    }
-    final List<Long> eventIds = events.stream().map(Event::getId).toList();
-    final Map<Long, List<ParticipationRequest>> confirmedRequests =
-        requestRepository.findAllByEventIdInAndStatus(eventIds, StatusRequest.CONFIRMED)
-            .stream()
-            .collect(Collectors.groupingBy(
-                ParticipationRequest::getEventId));
-
-    events.forEach(event ->
-        event.setConfirmedRequests(
-            confirmedRequests.getOrDefault(event.getId(), List.of()).size()));
-    log.debug("Confirmed requests has set successfully to the events with IDs {}.", eventIds);
   }
 
   private void setViews(final List<Event> events) {
@@ -430,8 +433,8 @@ public class EventProcessingServiceImpl implements EventProcessingService {
 
     log.debug("Calling StatsClient with parameters: start={}, end={}, uris={}, unique={}.",
         start, end, uris, true);
-
     final List<ViewStatsDto> stats = statsClient.getStats(start, end, uris, true).getBody();
+    log.debug("Successfully retrieved views {}.", stats);
 
     final Map<String, Long> views = stats == null
         ? Collections.emptyMap()

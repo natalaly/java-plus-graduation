@@ -1,5 +1,6 @@
 package ru.practicum.exception.handler;
 
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -28,7 +29,8 @@ public class ErrorHandler {
       MethodArgumentNotValidException.class,
       MissingServletRequestParameterException.class,
       BadRequestException.class,
-      HandlerMethodValidationException.class
+      HandlerMethodValidationException.class,
+      ConstraintViolationException.class
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ResponseEntity<ApiError> handleBadRequestExceptions(final Exception exception) {
@@ -71,7 +73,7 @@ public class ErrorHandler {
         LocalDateTime.now(),
         stackTrace
     );
-    log.warn("API Error: {}, {} - {}", status, exception.getMessage(), reason,exception);
+    log.warn("API Error: {}, {} - {}", status, exception.getMessage(), reason, exception);
     return ResponseEntity.status(status).body(apiError);
   }
 }

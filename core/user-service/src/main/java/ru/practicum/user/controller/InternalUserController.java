@@ -50,7 +50,5 @@ public class InternalUserController implements UserOperations {
     log.info("Returning {} Users.", users.size());
     return users;
   }
-
-
 }
 

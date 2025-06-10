@@ -29,8 +29,7 @@ public class AdminCompilationController {
   private final CompilationService service;
 
   @PostMapping
-  public ResponseEntity<CompilationDto> saveCompilation(
-      @Validated @RequestBody NewCompilationDto compDto) {
+  public ResponseEntity<CompilationDto> saveCompilation(@Validated @RequestBody NewCompilationDto compDto) {
     log.info("Request received POST /admin/compilations to save compilation {}", compDto);
 
     final CompilationDto savedCompilation = service.save(compDto);
@@ -48,7 +47,7 @@ public class AdminCompilationController {
 
   @PatchMapping("/{compId}")
   public ResponseEntity<CompilationDto> updateCompilation(@PathVariable("compId") @Positive Long compId,
-      @Validated @RequestBody UpdateCompilationRequest compDto) {
+                                                          @Validated @RequestBody UpdateCompilationRequest compDto) {
     log.info("Request received PATCH /admin/compilations/{} to update compilation with data {}.",
         compId, compDto);
     final CompilationDto updatedCompilation = service.update(compId, compDto);

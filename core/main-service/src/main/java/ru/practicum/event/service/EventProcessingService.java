@@ -2,8 +2,8 @@ package ru.practicum.event.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Set;
 import ru.practicum.dto.EventFullDto;
+import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.event.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.dto.EventShortDto;
@@ -12,7 +12,6 @@ import ru.practicum.event.dto.GetEventPublicParam;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.dto.UpdateEventAdminRequest;
 import ru.practicum.event.dto.UpdateEventUserRequest;
-import ru.practicum.request.dto.ParticipationRequestDto;
 
 public interface EventProcessingService {
 
@@ -37,14 +36,14 @@ public interface EventProcessingService {
   EventFullDto getEvent(Long initiatorId, Long eventId);
 
   /**
-   * Retrieves detailed information about a published event by its ID.
-   */
-  EventFullDto getPublishedEvent(Long eventId);
-
-  /**
    * Retrieves detailed information about an event by its ID.
    */
   EventFullDto getEvent(Long eventId);
+
+  /**
+   * Retrieves detailed information about a published event by its ID.
+   */
+  EventFullDto getPublishedEvent(Long eventId);
 
   /**
    * Retrieves all existed in DB events (performed by ADMIN).
@@ -52,19 +51,14 @@ public interface EventProcessingService {
   List<EventFullDto> getEvents(GetEventAdminRequest param);
 
   /**
-   * Retries all events created by current user.
-   */
-  List<EventShortDto> getEvents(Long initiatorId, Integer from, Integer size);
-
-  /**
    * Retrieving published events with filtering options.
    */
   List<EventShortDto> getEvents(GetEventPublicParam param, HttpServletRequest request);
 
   /**
-   *  Retrieves a set of events based on the provided event IDs.
+   * Retries all events created by current user.
    */
-  Set<EventShortDto> getEvents(Set<Long> events);
+  List<EventShortDto> getEvents(Long initiatorId, Integer from, Integer size);
 
   /**
    * Retrieves information about participation requests for the current user's event.
@@ -75,7 +69,9 @@ public interface EventProcessingService {
    * Updates the participation request statuses for the specified event of the current user. The
    * statuses can be changed to either {@code CONFIRMED} or {@code REJECTED}.
    */
-  EventRequestStatusUpdateResult updateRequestsStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest updateStatusDto);
+  EventRequestStatusUpdateResult updateRequestsStatus(Long userId,
+                                                      Long eventId,
+                                                      EventRequestStatusUpdateRequest updateStatusDto);
 
   /**
    * Provides information wherever the vent with given ID exists in the system.

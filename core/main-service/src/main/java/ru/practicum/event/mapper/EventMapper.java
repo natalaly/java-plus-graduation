@@ -9,13 +9,12 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.dto.EventFullDto;
+import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.enums.State;
 import ru.practicum.event.model.Event;
-import ru.practicum.request.mapper.RequestMapper;
-import ru.practicum.request.model.ParticipationRequest;
 
 @UtilityClass
 @Slf4j
@@ -86,10 +85,11 @@ public class EventMapper {
   }
 
   public static EventRequestStatusUpdateResult toEventRequestStatusUpdateResult(
-      final List<ParticipationRequest> confirmedRequests, final List<ParticipationRequest> rejectedRequests) {
+      final List<ParticipationRequestDto> confirmedRequests,
+      final List<ParticipationRequestDto> rejectedRequests) {
     log.debug("Mapping parameters to the EventRequestStatusUpdateResult.");
     return new EventRequestStatusUpdateResult()
-        .setConfirmedRequests(RequestMapper.mapToDto(confirmedRequests))
-        .setRejectedRequests(RequestMapper.mapToDto(rejectedRequests));
+        .setConfirmedRequests(confirmedRequests)
+        .setRejectedRequests(rejectedRequests);
   }
 }

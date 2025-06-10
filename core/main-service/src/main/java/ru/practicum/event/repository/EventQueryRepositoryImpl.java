@@ -12,21 +12,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.practicum.StatsClient;
-import ru.practicum.event.enums.SortType;
 import ru.practicum.enums.State;
+import ru.practicum.event.enums.SortType;
 import ru.practicum.event.model.Event;
+//TODO  MAKE DRY, SOLID, KISS
 
 @Slf4j
 @Repository
 public class EventQueryRepositoryImpl implements EventQueryRepository {
 
     private final EntityManager entityManager;
-    private final StatsClient statsClient;
 
-    public EventQueryRepositoryImpl(final EntityManager entityManager, StatsClient statsClient) {
+    public EventQueryRepositoryImpl(final EntityManager entityManager) {
         this.entityManager = entityManager;
-        this.statsClient = statsClient;
     }
 
     @Override

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import ru.practicum.request.dto.ParticipationRequestDto;
+import ru.practicum.dto.ParticipationRequestDto;
 
 /**
  * Used in the PRIVATE API as RESPONSE

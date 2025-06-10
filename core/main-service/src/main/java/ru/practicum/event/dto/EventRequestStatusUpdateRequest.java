@@ -5,9 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.request.model.StatusRequest;
+import ru.practicum.enums.StatusRequest;
 import ru.practicum.validation.ValidateStatusRequest;
-
 
 /**
  * Used In the PRIVATE APIs - as REQUEST body

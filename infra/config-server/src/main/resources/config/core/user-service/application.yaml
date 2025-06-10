@@ -22,6 +22,13 @@ spring:
     username: postgres
     password: password
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      adjust-dates-to-context-time-zone: false
+    date-format: yyyy-MM-dd HH:mm:ss
+
 server:
   port: 0
 
