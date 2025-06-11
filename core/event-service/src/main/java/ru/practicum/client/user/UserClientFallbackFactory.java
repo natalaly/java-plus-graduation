@@ -1,7 +1,5 @@
 package ru.practicum.client.user;
 
-import feign.RetryableException;
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
@@ -14,18 +12,6 @@ public class UserClientFallbackFactory implements FallbackFactory<UserClient> {
 
   @Override
   public UserClient create(Throwable cause) {
-
-    if (!(cause instanceof CallNotPermittedException) && !(cause instanceof RetryableException)) {
-      log.warn("Fallback skipped for non-circuit-breaker exception: {}.",
-          cause.getClass().getSimpleName(), cause);
-
-      if (cause instanceof RuntimeException ex) {
-        throw ex;
-      } else {
-        throw new RuntimeException(cause);
-      }
-    }
-
     log.warn("User Client Fallback triggered, CAUSE: {}.", cause.getMessage(), cause);
 
     return new UserClient() {

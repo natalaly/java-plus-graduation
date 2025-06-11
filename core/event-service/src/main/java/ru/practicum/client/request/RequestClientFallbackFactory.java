@@ -1,7 +1,5 @@
 package ru.practicum.client.request;
 
-import feign.RetryableException;
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -15,18 +13,6 @@ public class RequestClientFallbackFactory implements FallbackFactory<RequestClie
 
   @Override
   public RequestClient create(Throwable cause) {
-
-    if (!(cause instanceof CallNotPermittedException) && !(cause instanceof RetryableException)) {
-      log.warn("Fallback skipped for non-circuit-breaker exception: {}.",
-          cause.getClass().getSimpleName(), cause);
-
-      if (cause instanceof RuntimeException ex) {
-        throw ex;
-      } else {
-        throw new RuntimeException(cause);
-      }
-    }
-
     log.warn("Request Client Fallback triggered, CAUSE: {}.", cause.getMessage(), cause);
 
     return new RequestClient() {

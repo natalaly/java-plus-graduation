@@ -1,175 +1,178 @@
-#  <span style="color: #674ea7">**Explore-With-Me**</span>  
-A microservice application that lets users share events and find company to join in activities.
+<p align="center">
+  <strong><span style="font-size: 32px; color: #674ea7;">Explore-With-Me</span></strong>
+</p>
+
+<p align="center">A microservice application that lets users share events and find company to join in activities.</p>
+
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/java.png" alt="Java" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/spring_boot.png" alt="Spring Boot" width="60" height="60"/>
+<img src="https://github.com/devicons/devicon/blob/master/icons/maven/maven-original.svg" title="Maven" alt="Maven" width="60" height="60"/>
+<img src="https://img.icons8.com/?size=100&id=22813&format=png&color=000000.png" title="Docker" alt="Docker" width="60" height="60"/>
+<img src="https://img.icons8.com/?size=100&id=IoYmHUxgvrFB&format=png&color=000000.png" title="postman" alt="postman" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/git.png" alt="Git" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/github.png" alt="GitHub" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/lombok.png" alt="Lombok" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/postgresql.png" alt="PostgreSQL" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/docker.png" alt="Docker" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/rest.png" alt="REST" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/hibernate.png" alt="Hibernate" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/swagger.png" alt="Swagger" width="60" height="60"/>
+
+
+
+------------------------------------------------------------------------------------------
+
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Architecture](#architecture)
+- [Technology Stack](#technology-stack)
+- [API Documentation](#api-documentation)
+- [Testing](#testing)
+
 
 ------------------------------------------------------------------------------------------
 
 
-## Feature "Comments"
+## Introduction
 
-### <a href="https://github.com/AGAYAN/java-explore-with-me-plus/pull/54">Pull Request Link</a>
+The application allows users to:
 
- - Функциональность комментариев предоставляет пользователям возможность оставлять отзывы, 
-делиться мыслями или задавать вопросы о событиях, создавая интерактивную среду в приложении.  
-Функциональность включает настройки прав доступа для создания, просмотра, редактирования и модерации комментариев.  
-
-
- - Структура базы данных:  
-В базе данных создана таблица `comments`, содержащая комментарии с привязкой к событиям и пользователям.
-Каждый комментарий связан с событием, к которому он относится, и пользователем, его написавшим.
-
-
- - Функциональность комментариев доступна через набор эндпоинтов, разделенных на `Private`, `Admin` и `Public` APIs,
-что позволяет предоставлять разные права доступа на основе ролей пользователей.
-------------------------------------------------------------------------------------------
-
-
-### PRIVATE API
-<details>
-<summary><code><span style="color: #0b8721">POST</span></code> <code><b>/users/{userId}/comments?eventId={eventId}</b></code> <code>Добавление нового комментария от текущего пользователя под событием`</code></summary>
-
-##### Notes
- - Нельзя комментировать не опубликованное событие (Ожидается код ошибки 409)
- - Инициатор может оставлять комментарии, как интерактивную реакцию на сообщения от пользователей
- - Комментарий от инициатора помечается флажком `isInitiator = true`
-##### Parameters  
->| name      | type             | data type | description                                            |
->|-----------|------------------|-----------|--------------------------------------------------------|
->| `userId`  | required (path)  | int       | ИД текущего пользователя который оставляет комментарий |
->| `eventId` | required (query) | int       | ИД события к кторому оставляется комментарий           |
-##### Request body [^1]
->| name       | type     | data type | constraints                           |
->|------------|----------|-----------|---------------------------------------|
->|  content   | required | String    | maxLength = 5000, min length = 1      |
-##### Responses
-> | http code | reason                        |
-> |-----------|-------------------------------|
-> | `201`     | Коммент сохранен    + DTO     |
-> | `400`     | Запрос составлен не корректно |
-> | `404`     | Событие не найдено            |
-> | `409`     | Событие не опубликовано       |
-</details>
-
-<details>
-<summary><code><span style="color: #1ca885">PATCH</span></code> <code><b>/users/{userId}/comments/{commentId}</b></code> <code>Изменение текста своего комментария</code></summary>   
-
-##### Notes
-- Изменить текст комментария может только тот кто оставлял коммент (Ожидается код ошибки 409)
-##### Parameters
->| name        | type            | data type | description                                  |
->|-------------|-----------------|-----------|----------------------------------------------|
->| `userId`    | required (path) | int       | ИД текущего владельца комментария            |
->| `commentId` | required (path) | int       | ИД комментария, в которое вносятся изменения |
-##### Request body [^1]
->| name        | type     | data type | constraints                           |
->|-------------|----------|-----------|---------------------------------------|
->|   content   | required | String    | maxLength = 5000, min length = 1      |
-
-##### Responses
-> | http code | reason                                                  |
-> |-----------|---------------------------------------------------------|
-> | `200`     | Коммент обновлен   + DTO                                |
-> | `400`     | Запрос составлен не корректно                           |
-> | `404`     | Комментарий не найден                                   |
-> | `409`     | Попытка изменения комментария посторонним пользователем |
-</details>
-
-<details>
-<summary><code><span style="color: #c04239">DELETE</span></code> <code><b>/users/{userId}/comments/{commentId}</b></code> <code>Удаление своего комментария текущим пользователем</code></summary>   
-
-##### Notes
-- Удалить можно только собственный комментарий (Ожидается код ошибки 409)
-##### Parameters
->| name        | type            | data type | description                       |
->|-------------|-----------------|-----------|-----------------------------------|
->| `userId`    | required (path) | int       | ИД текущего владельца комментария |
->| `commentId` | required (path) | int       | ИД комментария, которое удаляется |
-
-##### Responses
-> | http code | reason                                                 |
-> |-----------|--------------------------------------------------------|
-> | `204`     | Коммент удален                                         |
-> | `400`     | Запрос составлен не корректно                          |
-> | `404`     | Комментарий не найден                                  |
-> | `409`     | Попытка удаления комментария посторонним пользователем |
-</details>
-
-<details>
-<summary><code><span style="color: #1773c7">GET</span></code> <code><b>/users/{usersId}/comments</b></code> <code>Получение всех комментариев текущего пользователя</code></summary>   
-
-##### Notes
-- В случае, если не найдено ни одного комментария, возвращает пустой список
-##### Parameters
->| name     | type                 | data type | description                                                                     |
->|----------|----------------------|-----------|---------------------------------------------------------------------------------|
->| `userId` | required (path)      | int       | ИД текущего владельца комментария                                               |
-
-##### Responses
-> | http code | reason                      |
-> |-----------|-----------------------------|
-> | `200`     | Успех,  список комментариев |
-> | `404`     | Пользователь не найден      |
-</details>
+- Create and manage events (exhibitions, parties, concerts, hikes, etc.)
+- Submit requests to participate in events
+- Browse event compilations
+- Comment on events
+- Allow administrators to manage categories, events, and users
 
 ------------------------------------------------------------------------------------------
+## Architecture
+The system consists of three main services:
 
-### ADMIN API
-<details>
-<summary><code><span style="color: #c04239">DELETE</span></code> <code><b>/admin/comments/{commentId}</b></code> <code>Удаление комментария админом</code></summary>   
- 
-##### Parameters
->| name        | type            | data type | description                       |
->|-------------|-----------------|-----------|-----------------------------------|
->| `commentId` | required (path) | int       | ИД комментария, которое удаляется |
+### 1. Core Service (Main Business Logic)
 
-##### Responses
-> | http code | reason                                                 |
-> |-----------|--------------------------------------------------------|
-> | `204`     | Коммент удален                                         |
-> | `400`     | Запрос составлен не корректно                          |
-> | `404`     | Комментарий не найден                                  |
-</details>
+| event-service                                                                                         | user-service                                                       | request-service                                                                                                                   | comments-service                                                                      |
+|-------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| • Event lifecycle management<br> • Event creation, updates, deletion<br> • Event search and filtering | • User registration and authentication<br>• Profile management<br> | • User participation request processing<br> • Request approval and rejection by event organizerst<br> • Event capacity management | • User comments management<br>• Comment moderation<br>• Comment threading and replies |
 
-<details>
-<summary><code><span style="color: #1773c7">GET</span></code> <code><b>/admin/comments</b></code> <code>Получение всех комментариев к определенному событию</code></summary>
 
-##### Notes
-- В случае, если не найдено ни одного комментария, возвращает пустой список
-##### Parameters
->| name       | type                 | data type | description                                                                     |
->|------------|----------------------|-----------|---------------------------------------------------------------------------------|
->| `eventId`  | required (query)     | int       | ИД события комментарии которого выводятся                                       |
->| `from`     | default = 0 (query)  | int       | количество элементов, которые нужно пропустить для формирования текущего набора |
->| `size`     | default = 10 (query) | int       | количество элементов в наборе                                                   |
+### 2. Stats Service
 
-##### Responses
-> | http code | reason                                                 |
-> |-----------|--------------------------------------------------------|
-> | `200`     | Успех,  список комментариев                            |
-> | `400`     | Запрос составлен не корректно                          |
-</details>
+|                                                                                                                                             |
+|:--------------------------------------------------------------------------------------------------------------------------------------------|
+| • Collects and logs all endpoint hit data<br>• Tracks unique visits and timestamps<br>• Provides aggregated statistics and view analytics   |
 
-------------------------------------------------------------------------------------------
 
-### PUBLIC API
+### 3. Infrastructure Module (infra)
 
-<details>
-<summary><code><span style="color: #1773c7">GET</span></code> <code><b>/events/{eventId}/comments</b></code> <code>Получение всех комментариев к определенному событию</code></summary>   
+| config-serve r                                                                      | discovery-server                                                  | gateway-server                                                       |
+|-------------------------------------------------------------------------------------|-------------------------------------------------------------------|----------------------------------------------------------------------|
+| • Centralized configuration<br>• Environment-specific settings<br>• Dynamic updates | • Service registration<br>• Load balancing<br>• Health monitoring | • Request routing<br>• Request filtering<br>• Cross-cutting concerns |
 
-##### Notes
-- В случае, если не найдено ни одного комментария, возвращает пустой список 
-##### Parameters
->| name       | type                 | data type | description                                                                     |
->|------------|----------------------|-----------|---------------------------------------------------------------------------------|
->| `eventId`  | required (path)      | int       | ИД события комментарии которого выводятся                                       |
->| `from`     | default = 0 (query)  | int       | количество элементов, которые нужно пропустить для формирования текущего набора |
->| `size`     | default = 10 (query) | int       | количество элементов в наборе                                                   |
+### Communication Between Services
 
-##### Responses
-> | http code | reason                                                 |
-> |-----------|--------------------------------------------------------|
-> | `200`     | Успех,  список комментариев                            |
-> | `400`     | Запрос составлен не корректно                          |
-</details>
+All services interact via **REST over HTTP**, using **OpenFeign clients** for internal communication.
 
-------------------------------------------------------------------------------------------
-[^1]: Required
+- External requests are routed **only through the API Gateway**, which acts as the single entry point.
+- Internal service-to-service communication is performed via **Eureka service discovery** and **Feign clients**, using internal endpoints.
+
+Configuration parameters for each service (ports, DB connections, Feign URLs) are defined in:
+
+- local `application.yml` → points to `config-server`
+- `application.yml` → contains fallback or local config
+
+### Service Interaction Matrix
+
+| From → To         | Core Service                                 | Stats Service                                | Infrastructure                             |
+|-------------------|----------------------------------------------|----------------------------------------------|--------------------------------------------|
+| **Core Service**  | -                                            | • Sends hit records<br>• Requests statistics | • Fetches config<br>• Service registration |
+| **Stats Service** | • Provides analytics<br>• Returns hit counts | -                                            | • Fetches config<br>• Service registration |
+| **Gateway**       | • Routes requests<br>• Load balancing        | -                                            | -                                          |
+
+-----------------------------------------------------------------------------------
+
+## Technology Stack
+
+- **Spring Boot** – Foundation for creating microservices.
+- **Spring Cloud**:
+    - **Spring Cloud Config** – For externalized centralized configuration (`config-server`).
+    - **Spring Cloud Netflix Eureka** – For service registration and discovery (`discovery-server`).
+    - **Spring Cloud Gateway** – Acts as an API Gateway for routing and filtering requests.
+- **OpenFeign** – Declarative REST clients for inter-service communication.
+- **REST** – Primary protocol for API communication between services.
+- **Docker & Docker Compose** – For containerization and local orchestration of all services.
+- **PostgreSQL** – Main database used by various microservices.
+- **Lombok** – Reduces boilerplate code (getters, setters, etc.).
+- **SLF4J** – Logging facade used across services for consistent logging.
+- **Maven** – Build and dependency management tool.
+
+-----------------------------------------------------------------------------------
+
+## API Documentation
+
+API specifications for the Event Management System are provided in OpenAPI 3.0 format.
+
+### API Specifications
+- [Main Service API Specification][main-spec]
+- [Stats Service API Specification][stats-spec]
+
+[main-spec]: /ewm-main-service-spec.json
+[stats-spec]: /ewm-stats-service-spec.json
+
+
+-----------------------------------------------------------------------------------
+
+## Testing
+
+### Postman Collections
+The project includes comprehensive Postman collections for API testing, located in the `/postman` package:
+
+- [Main Service Collection][main-collection]
+- [Stats Service Collection][stats-collection]
+- [Feature Tests Collection][feature-collection]
+
+[main-collection]: ./postman/microservices/ewm-main-service.json
+[stats-collection]: ./postman/microservices/ewm-stat-service.json
+[feature-collection]: ./postman/microservices/feature.json
+
+
+### Running Tests
+
+You can run the API tests in two ways:
+
+#### Option 1: Using Postman GUI
+1. Import the collections into Postman:
+2. Set up environment variables in Postman:
+    - Create a new environment
+    - Add required variables:
+        - `BASE_URL`: http://localhost:8080
+        - `STATS_URL`: http://localhost:8082
+3. Run collections through Postman interface:
+
+#### Option 2: Using Newman (CLI)
+1. Install Newman:
+   ```bash
+   npm install -g newman
+   ```
+2. Create environment file `environment.json`:
+   ```json
+   {
+     "values": [
+       {
+         "key": "BASE_URL",
+         "value": "http://localhost:8080"
+       },
+       {
+         "key": "STATS_URL",
+         "value": "http://localhost:8082"
+       }
+     ]
+   }
+   ```
+3. Run collections via the command line:
+   ```bash
+   newman run ./postman/microservices/ewm-main-service.json -e environment.json
+   newman run ./postman/microservices/ewm-stat-service.json -e environment.json
+   newman run ./postman/microservices/feature.json -e environment.json
+   ```
+
+-----------------------------------------------------------------------------------

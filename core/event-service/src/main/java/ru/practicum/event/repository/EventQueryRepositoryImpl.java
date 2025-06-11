@@ -15,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.enums.State;
 import ru.practicum.event.enums.SortType;
 import ru.practicum.event.model.Event;
-//TODO  MAKE DRY, SOLID, KISS
 
 @Slf4j
 @Repository
