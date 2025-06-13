@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: request-service
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/ewm_request
+    username: postgres
+    password: password
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      adjust-dates-to-context-time-zone: false
+    date-format: yyyy-MM-dd HH:mm:ss
+
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 2                              # Analyzing last 2 calls
+      failureRateThreshold: 50                          # Failure rate threshold in %
+      minimumNumberOfCalls: 2                           # Minimum number of calls before calculating failure rate
+      waitDurationInOpenState: 10000                    # 10 seconds
+      permittedNumberOfCallsInHalfOpenState: 2
+      slidingWindowType: COUNT_BASED
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      slowCallRateThreshold: 100
+      slowCallDurationThreshold: 60000
+      ignoreExceptions:
+        - ru.practicum.exception.dto.ApiError
+  timelimiter:
+    configs:
+      values:
+        timeout-duration: 10s                            # Allowed duration for a microservice call.
+
+server:
+  port: 0
+
+logging:
+  level:
+    ru.practicum: DEBUG
+    org.hibernate.tool.schema: DEBUG
