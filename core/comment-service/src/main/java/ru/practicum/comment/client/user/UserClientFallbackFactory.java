@@ -18,19 +18,19 @@ public class UserClientFallbackFactory implements FallbackFactory<UserClient> {
 
       @Override
       public boolean existsById(Long id) {
-        log.warn("Fallback: unable to call user-service - existsById().");
+        log.warn("Fallback: unable to call user-service - existsById(); userId = {}.", id);
         return false;
       }
 
       @Override
       public UserShortDto getUser(Long id) {
-        log.warn("Fallback: unable to call user-service - getUser().");
+        log.warn("Fallback: unable to call user-service - getUser(); userId = {}.", id);
         return new UserShortDto(null,null);
       }
 
       @Override
       public List<UserShortDto> getUsers(List<Long> ids) {
-        log.warn("Fallback: unable to call user-service - getUsers().");
+        log.warn("Fallback: unable to call user-service - getUsers(). User IDs: {}.", ids);
         return ids.stream().map(id -> new UserShortDto(null,null)).toList();
       }
     };

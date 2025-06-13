@@ -17,13 +17,13 @@ public class EventClientFallbackFactory implements FallbackFactory<EventClient> 
 
       @Override
       public EventFullDto getEvent(Long eventId) {
-        log.warn("Fallback: unable to call event-service - getEvent().");
+        log.warn("Fallback: unable to call event-service - getEvent(eventId);eventID = {}.", eventId);
         return new EventFullDto();
       }
 
       @Override
       public boolean existsById(Long id) {
-        log.warn("Fallback: unable to call event-service - existsById().");
+        log.warn("Fallback: unable to call event-service - existsById(); eventId = {}", id);
         return false;
       }
     };
