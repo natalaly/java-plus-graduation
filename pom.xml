@@ -28,14 +28,25 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
+		<!-- Dependency versions -->
 		<spring-cloud-dependencies.version>2023.0.3</spring-cloud-dependencies.version>
+		<avro.version>1.11.3</avro.version>
+		<kafka-clients.version>3.6.1</kafka-clients.version>
+<!--		<springdoc-openapi-starter.version>2.6.0</springdoc-openapi-starter.version>TODO NEED???-->
+		<grpc-spring-boot-starter.version>3.1.0.RELEASE</grpc-spring-boot-starter.version>
+		<protobuf.version>3.23.4</protobuf.version>
+		<grpc.version>1.63.0</grpc.version>
+		<!-- Plugin versions   -->
+		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+		<avro-maven-plugin.version>${avro.version}</avro-maven-plugin.version>
+		<protobuf-plugin.version>2.4.0</protobuf-plugin.version>
+<!--		<build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>TODO NEEDD???-->
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
 
-			<!-- Spring Cloud-->
+			<!-- Spring Cloud BOM -->
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
@@ -44,13 +55,81 @@
 				<scope>import</scope>
 			</dependency>
 
-		</dependencies>
+			<!-- Apache Avro for schema definition and serialization -->
+			<dependency>
+				<groupId>org.apache.avro</groupId>
+				<artifactId>avro</artifactId>
+				<version>${avro.version}</version>
+			</dependency>
 
+			<!-- Kafka clients for messaging -->
+<!--			<dependency>-->
+<!--				<groupId>org.apache.kafka</groupId>-->
+<!--				<artifactId>kafka-clients</artifactId>-->
+<!--				<version>${kafka-clients.version}</version>-->
+<!--			</dependency>-->
+			<!--			TODO need???????? -->
+
+			<!-- SpringDoc OpenAPI for API documentation -->
+<!--			<dependency>-->
+<!--				<groupId>org.springdoc</groupId>-->
+<!--				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>-->
+<!--				<version>${springdoc-openapi-starter.version}</version>-->
+<!--			</dependency>-->
+			<!--			TODO need???????? -->
+
+			<!-- gRPC dependencies management for microservices communication  -->
+			<dependency>
+				<groupId>net.devh</groupId>
+				<artifactId>grpc-spring-boot-starter</artifactId>
+				<version>${grpc-spring-boot-starter.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.devh</groupId>
+				<artifactId>grpc-server-spring-boot-starter</artifactId>
+				<version>${grpc-spring-boot-starter.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.devh</groupId>
+				<artifactId>grpc-client-spring-boot-starter</artifactId>
+				<version>${grpc-spring-boot-starter.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-stub</artifactId>
+				<version>${grpc.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-protobuf</artifactId>
+				<version>${grpc.version}</version>
+			</dependency>
+
+		</dependencies>
 	</dependencyManagement>
 
 	<build>
 		<pluginManagement>
 			<plugins>
+				<!-- Avro plugin for generating Java classes from Avro schemas -->
+				<plugin>
+					<groupId>org.apache.avro</groupId>
+					<artifactId>avro-maven-plugin</artifactId>
+					<version>${avro-maven-plugin.version}</version>
+				</plugin>
+				<!-- Protobuf plugin for generating Java classes from Protobuf definitions -->
+				<plugin>
+					<groupId>io.github.ascopes</groupId>
+					<artifactId>protobuf-maven-plugin</artifactId>
+					<version>${protobuf-plugin.version}</version>
+				</plugin>
+				<!-- Maven compiler plugin for Java compilation -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven-compiler-plugin.version}</version>
+				</plugin>
+				<!-- Test execution -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
@@ -60,6 +139,7 @@
 						</systemPropertyVariables>
 					</configuration>
 				</plugin>
+				<!-- Code style checks -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-checkstyle-plugin</artifactId>
@@ -86,6 +166,7 @@
 						</dependency>
 					</dependencies>
 				</plugin>
+				<!-- Static analysis with SpotBugs -->
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
@@ -102,6 +183,7 @@
 						</execution>
 					</executions>
 				</plugin>
+				<!-- Code coverage with JaCoCo -->
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
@@ -173,6 +255,7 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
 	<profiles>
 		<profile>
 			<id>check</id>

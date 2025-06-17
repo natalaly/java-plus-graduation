@@ -45,6 +45,9 @@ public class EventProcessingServiceImpl implements EventProcessingService {
   private final UserClient userClient;
   private final RequestClient requestClient;
   private final StatsClient statsClient;
+//TODO Use client
+//  @GrpcClient("collector")
+//  private UserActionControllerGrpc.UserActionControllerBlockingStub collectorClient;
 
   /**
    * Saves a new event data initiated by a current user.

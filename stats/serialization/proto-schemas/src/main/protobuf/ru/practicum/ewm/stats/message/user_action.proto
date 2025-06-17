@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+//package ru.practicum.ewm.stats.message;
+package stats.message;
+
+option java_multiple_files = true;
+option java_package = "ru.practicum.ewm.stats.action";
+
+import "google/protobuf/timestamp.proto";
+
+enum ActionTypeProto {
+  ACTION_VIEW = 0; // viewing event page
+  ACTION_REGISTER = 1; // requesting for the event participation
+  ACTION_LIKE = 2; // like for the event , positive rating
+}
+
+message UserActionProto {
+  int64 user_id = 1; // user ID, who performed the action
+  int64 event_id = 2; // event ID, associated with the action
+  ActionTypeProto action_type = 3; // action type
+  google.protobuf.Timestamp timestamp = 4; // timestamp , when the action was performed
+}
