@@ -2,15 +2,15 @@
 protocol UserActionPotocol {
 
 	enum ActionTypeAvro {
-		VIEW,	// viewing event page
+		VIEW,		// viewing event page
 		REGISTER,	// requesting for the event participation
-		LIKE	// like for the event , positive rating
+		LIKE		// like for the event , positive rating
 	}
 
 	record UserActionAvro {
-		long userId; 	// user ID, who performed the action
-		long eventId;	// event ID, associated with the action
+		long userId; 				// user ID, who performed the action
+		long eventId;				// event ID, associated with the action
 		ActionTypeAvro actionType;	// action type
-		timestamp_ms timestamp;	// timestamp , when the action was performed
+		timestamp_ms timestamp;		// timestamp , when the action was performed
 	}
 }

@@ -25,6 +25,7 @@ public class KafkaConfiguration {
 
   private String bootstrapServers;
   private Map<String, String> topics;
+  private Map<String, String> properties;
 
   @Bean
   public Producer<String, SpecificRecordBase> kafkaProducer() {
@@ -33,6 +34,9 @@ public class KafkaConfiguration {
     config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
     config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GeneralAvroSerializer.class.getName());
+    if (properties != null) {
+      config.putAll(properties);
+    }
     return new KafkaProducer<>(config);
   }
 
