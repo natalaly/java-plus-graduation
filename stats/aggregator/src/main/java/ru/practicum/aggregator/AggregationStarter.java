@@ -49,24 +49,8 @@ public class AggregationStarter {
       consumer.subscribe(userActionTopics);
       log.debug("Subscribed for the topic: {}", userActionTopics);
 
-      while (true) {
-        ConsumerRecords<String, UserActionAvro> records = consumer.poll(POLL_TIMEOUT);
-        log.debug("Polled {} records", records.count());
+      pollLoop();
 
-        if (!records.isEmpty()) {
-
-          for (ConsumerRecord<String, UserActionAvro> record : records) {
-            processRecord(record);
-          }
-
-          try {
-            consumer.commitSync();
-            log.debug("Consumer offsets committed successfully.");
-          } catch (Exception e) {
-            log.error("Failed to commit consumer offsets.", e);
-          }
-        }
-      }
     } catch (WakeupException ignored) {
       log.warn("Kafka consumer wakeup triggered. Exiting polling loop.");
     } catch (Exception e) {
@@ -75,6 +59,25 @@ public class AggregationStarter {
       cleanupResources();
     }
 
+  }
+
+  private void pollLoop() {
+    while (true) {
+      ConsumerRecords<String, UserActionAvro> records = consumer.poll(POLL_TIMEOUT);
+      log.debug("Polled {} records", records.count());
+
+      if (!records.isEmpty()) {
+        processRecords(records);
+        doCommitOffsets();
+      }
+    }
+  }
+
+  private void processRecords(final ConsumerRecords<String, UserActionAvro> records) {
+    log.info("Processing {} records from the Kafka.", records.count());
+    for (ConsumerRecord<String, UserActionAvro> record : records) {
+      processRecord(record);
+    }
   }
 
   private void processRecord(final ConsumerRecord<String, UserActionAvro> record) {
@@ -102,6 +105,15 @@ public class AggregationStarter {
             metadata.offset());
       }
     });
+  }
+
+  private void doCommitOffsets() {
+    try {
+      consumer.commitSync();
+      log.debug("Consumer offsets committed successfully.");
+    } catch (Exception e) {
+      log.error("Failed to commit consumer offsets.", e);
+    }
   }
 
   private void cleanupResources() {

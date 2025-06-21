@@ -23,6 +23,7 @@
         <module>serialization</module>
         <module>aggregator</module>
         <module>analyzer</module>
+        <module>common-kafka</module>
     </modules>
 
     <properties>
