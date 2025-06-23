@@ -9,11 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.practicum.common.kafka.KafkaConfigFactory;
+import ru.practicum.common.kafka.KafkaConfigKey;
 import ru.practicum.ewm.stats.serializer.GeneralAvroSerializer;
 
 @Getter
@@ -30,17 +30,19 @@ public class KafkaConfiguration {
   @Bean
   public Producer<String, SpecificRecordBase> kafkaProducer() {
     log.debug("Initializing Kafka producer with bootstrap servers: {}", bootstrapServers);
-    Properties config = new Properties();
-    config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-    config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GeneralAvroSerializer.class.getName());
+
+    Properties config = KafkaConfigFactory.baseProducerProperties(
+        bootstrapServers,
+        GeneralAvroSerializer.class
+    );
+
     if (properties != null) {
       config.putAll(properties);
     }
     return new KafkaProducer<>(config);
   }
 
-  public String getTopic(final KafkaTopic topicKey) {
+  public String getTopic(final KafkaConfigKey topicKey) {
     final String topicName = topics.get(topicKey.getConfigKey());
     if (topicName == null) {
       log.error("Topic {} not found in configuration.", topicKey.getConfigKey());

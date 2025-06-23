@@ -6,15 +6,13 @@ import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.practicum.common.kafka.KafkaConfigFactory;
+import ru.practicum.common.kafka.KafkaConfigKey;
 import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.ewm.stats.deserializer.UserActionDeserializer;
@@ -34,26 +32,29 @@ public class KafkaConfiguration {
   @Bean
   public KafkaConsumer<String, UserActionAvro> kafkaConsumer() {
     log.debug("Initializing Kafka consumer with bootstrap servers: {}", bootstrapServers);
-    Properties config = new Properties();
-    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    config.put(ConsumerConfig.GROUP_ID_CONFIG, consumer.getGroupId());
-    config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-    config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, UserActionDeserializer.class.getName());
-    config.put("specific.avro.reader", true);
+
+    Properties config = KafkaConfigFactory.baseConsumerProperties(
+        bootstrapServers,
+        consumer.getGroupId(),
+        UserActionDeserializer.class
+    );
+
     return new KafkaConsumer<>(config);
   }
 
   @Bean
   public KafkaProducer<String, EventSimilarityAvro> kafkaProducer() {
     log.debug("Initializing Kafka producer with bootstrap servers: {}", bootstrapServers);
-    Properties config = new Properties();
-    config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-    config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GeneralAvroSerializer.class.getName());
+
+    Properties config = KafkaConfigFactory.baseProducerProperties(
+        bootstrapServers,
+        GeneralAvroSerializer.class
+    );
+
     return new KafkaProducer<>(config);
   }
 
-  public String getTopic(final KafkaTopic topicKey) {
+  public String getTopic(final KafkaConfigKey topicKey) {
     final String topicName = topics.get(topicKey.getConfigKey());
     if (topicName == null) {
       log.error("Topic {} not found in configuration.", topicKey.getConfigKey());
@@ -77,7 +78,6 @@ public class KafkaConfiguration {
 
     log.debug("Kafka configuration validated successfully: bootstrapServers={}, topics={}, groupId={}, autoOffsetReset={}",
         bootstrapServers, topics, consumer.getGroupId(), consumer.getAutoOffsetReset());
-
   }
 
   @Getter

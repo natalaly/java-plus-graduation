@@ -21,6 +21,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class EventSimilarity {
+
   @Id
   @Column(name = "event_a_id", nullable = false)
   private Long eventAId;

@@ -32,10 +32,12 @@ public class AnalyzerKafkaConfiguration {
   public KafkaConsumer<String, UserActionAvro> kafkaUserActionsConsumer() {
     log.debug("Initializing Kafka consumer for user action group Id with bootstrap servers: {}",
         bootstrapServers);
+
     Properties config = KafkaConfigFactory.baseConsumerProperties(
         bootstrapServers,
         groupId.get(KafkaConfigKey.USER_ACTION.getConfigKey()),
         UserActionDeserializer.class);
+
     return new KafkaConsumer<>(config);
   }
 
@@ -43,10 +45,12 @@ public class AnalyzerKafkaConfiguration {
   public KafkaConsumer<String, EventSimilarityAvro> kafkaSimilarityConsumer() {
     log.debug("Initializing Kafka consumer for Events Similarity reading with bootstrap servers: {}",
         bootstrapServers);
+
     Properties config = KafkaConfigFactory.baseConsumerProperties(
         bootstrapServers,
         groupId.get(KafkaConfigKey.EVENT_SIMILARITY.getConfigKey()),
         EventSimilarityDeserializer.class);
+
     return new KafkaConsumer<>(config);
   }
 

@@ -7,7 +7,7 @@ import ru.practicum.ewm.stats.avro.ActionTypeAvro;
 @UtilityClass
 public class ActionWeightMapper {
 
-  public double toWeight(final ActionTypeAvro type) {
+  public double toWeightValue(final ActionTypeAvro type) {
     Objects.requireNonNull(type);
     return switch (type) {
       case VIEW -> 0.4;

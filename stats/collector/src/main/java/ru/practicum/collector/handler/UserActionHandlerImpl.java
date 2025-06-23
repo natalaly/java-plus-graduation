@@ -5,8 +5,8 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.collector.configuration.KafkaConfiguration;
-import ru.practicum.collector.configuration.KafkaTopic;
 import ru.practicum.collector.producer.KafkaActionProducer;
+import ru.practicum.common.kafka.KafkaConfigKey;
 import ru.practicum.ewm.stats.action.ActionTypeProto;
 import ru.practicum.ewm.stats.action.UserActionProto;
 import ru.practicum.ewm.stats.avro.ActionTypeAvro;
@@ -21,7 +21,7 @@ public class UserActionHandlerImpl implements UserActionHandler {
 
   public UserActionHandlerImpl(final KafkaActionProducer producer, final KafkaConfiguration config) {
     this.producer = producer;
-    this.userActionsTopic = config.getTopic(KafkaTopic.USER_ACTION);
+    this.userActionsTopic = config.getTopic(KafkaConfigKey.USER_ACTION);
   }
 
 

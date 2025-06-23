@@ -33,7 +33,7 @@ public class EventSimilarityConsumer implements Runnable {
 
   @Override
   public void run() {
-    log.info("Starting listening for User Action messages.");
+    log.info("Starting listening for Event Similarity messages.");
     Runtime.getRuntime().addShutdownHook(new Thread(kafkaSimilarityConsumer::wakeup));
     try {
       kafkaSimilarityConsumer.subscribe(topics);

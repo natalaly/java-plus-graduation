@@ -11,8 +11,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.stereotype.Component;
 import ru.practicum.aggregator.configuration.KafkaConfiguration;
-import ru.practicum.aggregator.configuration.KafkaTopic;
 import ru.practicum.aggregator.service.AggregationProcessor;
+import ru.practicum.common.kafka.KafkaConfigKey;
 import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 
@@ -34,8 +34,8 @@ public class AggregationStarter {
     this.producer = producer;
     this.consumer = consumer;
     this.processor = processor;
-    this.userActionTopics = List.of(config.getTopic(KafkaTopic.USER_ACTION));
-    this.eventsTopics = config.getTopic(KafkaTopic.EVENT_SIMILARITY);
+    this.userActionTopics = List.of(config.getTopic(KafkaConfigKey.USER_ACTION));
+    this.eventsTopics = config.getTopic(KafkaConfigKey.EVENT_SIMILARITY);
   }
 
   public void start() {

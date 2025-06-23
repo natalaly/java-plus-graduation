@@ -12,5 +12,4 @@ public class EventSimilarityId implements Serializable {
 
   private Long eventAId;
   private Long eventBId;
-
 }

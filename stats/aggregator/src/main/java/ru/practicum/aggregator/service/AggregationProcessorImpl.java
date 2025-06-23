@@ -51,7 +51,8 @@ public class AggregationProcessorImpl implements AggregationProcessor {
     eventTotalWeightRepository.increment(eventId, deltaWeight);
     eventUserWeightMatrixRepository.putUserWeight(eventId, userId, newWeight);
 
-    return computeSimilarities(eventId, userId, newWeight, isNewInteraction ? 0.0 : oldWeight, userAction.getTimestamp());
+    return computeSimilarities(eventId, userId, newWeight, isNewInteraction ? 0.0 : oldWeight,
+        userAction.getTimestamp());
   }
 
   private List<EventSimilarityAvro> computeSimilarities(final Long eventIdA,
@@ -124,7 +125,8 @@ public class AggregationProcessorImpl implements AggregationProcessor {
     return updatedMinSum / sqrt(totalWeightA * totalWeightB);
   }
 
-  private EventSimilarityAvro buildSimilarityAvro(long eventIdA, long eventIdB, double score, final Instant timestamp) {
+  private EventSimilarityAvro buildSimilarityAvro(long eventIdA, long eventIdB, double score,
+                                                  final Instant timestamp) {
     long first = Math.min(eventIdA, eventIdB);
     long second = Math.max(eventIdA, eventIdB);
     return EventSimilarityAvro.newBuilder()

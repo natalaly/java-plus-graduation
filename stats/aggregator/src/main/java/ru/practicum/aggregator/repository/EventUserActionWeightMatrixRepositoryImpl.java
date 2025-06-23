@@ -53,9 +53,4 @@ public class EventUserActionWeightMatrixRepositoryImpl implements EventUserWeigh
         .filter(eventId -> !eventId.equals(exclude))
         .collect(Collectors.toSet());
   }
-
-  @Override
-  public boolean doesEventExists(Long eventId) {
-    return eventToUserWeightMatrix.containsKey(eventId);
-  }
 }

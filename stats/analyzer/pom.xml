@@ -96,7 +96,7 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <!-- Common Kafka Module -->
+        <!-- Common-Kafka Module -->
         <dependency>
             <groupId>ru.practicum</groupId>
             <artifactId>common-kafka</artifactId>
@@ -107,6 +107,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- QueryDSL -->
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-jpa</artifactId>
+            <classifier>jakarta</classifier>
+            <version>${com.querydsl.vesrion}</version>
         </dependency>
 
         <!-- PostgreSQL JDBC driver -->

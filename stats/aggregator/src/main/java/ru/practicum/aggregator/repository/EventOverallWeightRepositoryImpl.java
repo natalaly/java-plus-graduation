@@ -13,7 +13,7 @@ public class EventOverallWeightRepositoryImpl implements EventTotalWeightReposit
 
   @Override
   public double getTotalWeight(final Long eventId) {
-    double result =  eventTotalWeight.getOrDefault(eventId, 0.0);
+    double result = eventTotalWeight.getOrDefault(eventId, 0.0);
     log.trace("Retrieving total event weight for event {} = {}.", eventId, result);
     return result;
   }
