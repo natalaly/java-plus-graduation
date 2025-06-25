@@ -53,6 +53,14 @@ resilience4j.circuitbreaker:
       values:
         timeout-duration: 10s                            # Allowed duration for a microservice call.
 
+grpc:
+  client:
+    collector:
+      address: 'discovery:///collector'
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
+
 server:
   port: 0
 
