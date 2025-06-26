@@ -1,20 +1,20 @@
 package ru.practicum.event.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.StatsClient;
-import ru.practicum.ViewStatsDto;
+import ru.practicum.client.AnalyzerClient;
+import ru.practicum.client.CollectorClient;
 import ru.practicum.client.request.RequestClient;
 import ru.practicum.client.user.UserClient;
 import ru.practicum.dto.EventFullDto;
@@ -32,6 +32,9 @@ import ru.practicum.event.dto.UpdateEventAdminRequest;
 import ru.practicum.event.dto.UpdateEventUserRequest;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
+import ru.practicum.ewm.stats.action.ActionTypeProto;
+import ru.practicum.ewm.stats.recommendation.RecommendedEventProto;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 
@@ -44,10 +47,8 @@ public class EventProcessingServiceImpl implements EventProcessingService {
 
   private final UserClient userClient;
   private final RequestClient requestClient;
-  private final StatsClient statsClient;
-//TODO Use client
-//  @GrpcClient("collector")
-//  private UserActionControllerGrpc.UserActionControllerBlockingStub collectorClient;
+  private final AnalyzerClient recommendationClient;
+  private final CollectorClient collectorClient;
 
   /**
    * Saves a new event data initiated by a current user.
@@ -79,7 +80,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     final UserShortDto initiator = getUser(eventUpdated.getInitiatorId());
 
     eventUpdated.setInitiator(initiator);
-    setViews(List.of(eventUpdated));
+    setRating(List.of(eventUpdated));
     setConfirmedRequests(List.of(eventUpdated));
 
     return EventMapper.toFullDto(eventUpdated);
@@ -102,7 +103,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     final UserShortDto initiator = getUser(eventUpdated.getInitiatorId());
 
     eventUpdated.setInitiator(initiator);
-    setViews(List.of(eventUpdated));
+    setRating(List.of(eventUpdated));
     setConfirmedRequests(List.of(eventUpdated));
 
     return EventMapper.toFullDto(eventUpdated);
@@ -119,7 +120,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     log.debug("Getting event with ID={}, posted by user with ID={}.", eventId, initiatorId);
     final Event event = eventService.getEvent(initiatorId, eventId);
     event.setInitiator(getUser(initiatorId));
-    setViews(List.of(event));
+    setRating(List.of(event));
     setConfirmedRequests(List.of(event));
 
     return EventMapper.toFullDto(event);
@@ -137,7 +138,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     final Event event = eventService.getEvent(eventId);
 
     event.setInitiator(getUser(event.getInitiatorId()));
-    setViews(List.of(event));
+    setRating(List.of(event));
     setConfirmedRequests(List.of(event));
 
     return EventMapper.toFullDto(event);
@@ -149,14 +150,16 @@ public class EventProcessingServiceImpl implements EventProcessingService {
    * @param eventId
    */
   @Override
-  public EventFullDto getPublishedEvent(final Long eventId) {
+  public EventFullDto getPublishedEventWithTracking(final Long eventId, Long userId) {
     log.debug("Getting published event with ID={}.", eventId);
 
     final Event event = eventService.getEvent(eventId, State.PUBLISHED);
 
     event.setInitiator(getUser(event.getInitiatorId()));
-    setViews(List.of(event));
+    setRating(List.of(event));
     setConfirmedRequests(List.of(event));
+
+    sendUserAction(userId, eventId,ActionTypeProto.ACTION_VIEW);
 
     return EventMapper.toFullDto(event);
   }
@@ -171,7 +174,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     log.debug("Getting all events with param: {}.Performed by Admin.", param);
     final List<Event> events = eventService.getEvents(param);
     setInitiators(events);
-    setViews(events);
+    setRating(events);
     setConfirmedRequests(events);
     return events.stream()
         .map(EventMapper::toFullDto)
@@ -194,7 +197,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     final List<Event> events = eventService.getEvents(initiatorId, from, size);
     setInitiators(events);
     setConfirmedRequests(events);
-    setViews(events);
+    setRating(events);
     return EventMapper.toShortDto(events);
   }
 
@@ -209,7 +212,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     log.debug("Retrieving published events satisfied parameters: {}.", param);
     final List<Event> events = eventService.getEvents(param, request);
     setInitiators(events);
-    setViews(events);
+    setRating(events);
     setConfirmedRequests(events);
     return events.stream()
         .map(EventMapper::toShortDto)
@@ -285,6 +288,62 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     return eventService.eventExistsById(eventId);
   }
 
+  /**
+   * Processes a user's like action for a specific event.
+   * <p>
+   * Validates whether the user has previously participated in the event. If the check fails, throws an exception resulting in a 400
+   * BAD REQUEST.
+   *
+   * @param userId
+   * @param eventId
+   */
+  @Override
+  public void processLike(final Long userId, final Long eventId) {
+    log.debug("Processing like action for event ID {} from the user with ID {}.", eventId, userId);
+    validateUserExist(userId);
+    validateEventIsPublished(eventId);
+    validateUserParticipatedEvent(userId, eventId);
+
+    sendUserAction(userId, eventId, ActionTypeProto.ACTION_LIKE);
+  }
+
+  /**
+   * Returns a List of events recommended for the current user based on their activity history.
+   */
+  @Override
+  public List<EventShortDto> getRecommendations(final Long userId, final Integer maxResults) {
+    log.debug("Getting recommendations for user with ID {}, max events to retrieve = {}.", userId, maxResults);
+    validateUserExist(userId);
+
+    final List<RecommendedEventProto> recommendations = recommendationClient.getRecommendationsForUser(userId, maxResults).toList();
+    log.debug("Successfully retrieved {} recommendations from Analyzer.", recommendations.size());
+
+    if (recommendations.isEmpty()) {
+      return List.of();
+    }
+
+    final Set<Long> eventIds = recommendations.stream()
+        .sorted(Comparator.comparingDouble(RecommendedEventProto::getScore).reversed())
+        .map(RecommendedEventProto::getEventId)
+        .collect(Collectors.toSet());
+
+    final Set<Event> events = eventService.getEvents(eventIds);
+    setInitiators(events);
+    setRating(events);
+    setConfirmedRequests(events);
+
+    return EventMapper.toShortDto(events);
+  }
+
+  private void validateEventIsPublished(final Long eventId) {
+    log.debug("Validating event with ID={} is published.", eventId);
+    final Event event = eventService.getEvent(eventId, State.PUBLISHED);
+    if (event == null) {
+      throw new BadRequestException("Event is not published.");
+    }
+    log.debug("Event with ID={} is published.", eventId);
+  }
+
   private void setInitiators(final Collection<Event> events) {
     log.debug("Setting initiators for events: {}", events);
     final List<Long> initiatorIds = events.stream()
@@ -319,7 +378,18 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     log.debug("Success: user ID={} is not null and exists.", userId);
   }
 
-  private void setConfirmedRequests(final List<Event> events) {
+  private void validateUserParticipatedEvent(final Long userId, final Long eventId) {
+    log.debug("Validating user with ID={} participated in event with ID={}.", userId, eventId);
+    final boolean userParticipated = getRequestsByEventId(eventId).stream()
+        .filter(p -> p.getStatus().equals(StatusRequest.CONFIRMED.name()))
+        .anyMatch(p -> p.getRequester().equals(userId));
+    if (!userParticipated) {
+      throw new BadRequestException("User not participated in event.");
+    }
+    log.debug("Success: user with ID={} participated in event with ID={}.", userId, eventId);
+  }
+
+  private void setConfirmedRequests(final Collection<Event> events) {
     log.debug("Setting Confirmed requests to the events list, size {}.", events.size());
     if (events.isEmpty()) {
       log.debug("Events list is empty.");
@@ -415,43 +485,33 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     return EventMapper.toEventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
   }
 
-  private void setViews(final List<Event> events) {
-    log.debug("Setting views to the events list.");
+  private void setRating(final Collection<Event> events) {
+    log.debug("Setting rating to the events list.");
 
     if (events == null || events.isEmpty()) {
       log.debug("Events list is empty.");
       return;
     }
+    final List<Long> eventIds = events.stream().map(Event::getId).toList();
 
-    final LocalDateTime start = events.stream()
-        .min(Comparator.comparing(Event::getCreatedOn))
-        .map(Event::getCreatedOn)
-        .orElse(LocalDateTime.now());
+    log.debug("Calling Analyzer Client to get rating for events {}.", eventIds);
+    final List<RecommendedEventProto> stats = recommendationClient.getInteractionsCount(eventIds).toList();
+    log.debug("Successfully retrieved rating {}.", stats);
 
-    final LocalDateTime end = LocalDateTime.now();
-
-    final List<String> uris = events.stream()
-        .map(e -> buildEventUri(e.getId()))
-        .toList();
-
-    log.debug("Calling StatsClient with parameters: start={}, end={}, uris={}, unique={}.",
-        start, end, uris, true);
-    final List<ViewStatsDto> stats = statsClient.getStats(start, end, uris, true).getBody();
-    log.debug("Successfully retrieved views {}.", stats);
-
-    final Map<String, Long> views = stats == null
+    final Map<Long, Double> rating = stats.isEmpty()
         ? Collections.emptyMap()
         : stats.stream()
-            .collect(Collectors.toMap(ViewStatsDto::getUri, ViewStatsDto::getHits));
+            .collect(Collectors.toMap(RecommendedEventProto::getEventId, RecommendedEventProto::getScore));
 
     events.forEach(event ->
-        event.setViews(views.getOrDefault(buildEventUri(event.getId()), 0L)));
-    log.debug("Views has set successfully.");
-
+        event.setRating(rating.getOrDefault(event.getId(), 0.0)));
+    log.debug("Ratings were set successfully.");
   }
 
-  private String buildEventUri(final Long eventId) {
-    return String.format("/events/%d", eventId);
+  private void sendUserAction(final Long userId, final Long eventId, final ActionTypeProto actionType) {
+    log.info("Sending stat info about new User Action - {} event ID {} by user ID {}.",
+        actionType, eventId, userId);
+    collectorClient.collectUserAction(userId, eventId, actionType);
+    log.info("User Action {} successfully sent to collector service.",actionType);
   }
-
 }

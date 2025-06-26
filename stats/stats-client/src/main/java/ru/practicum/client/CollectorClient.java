@@ -18,16 +18,20 @@ public class CollectorClient {
 
 
   public void collectUserAction(long userId, long eventId, ActionTypeProto actionType) {
-    Instant now = Instant.now();
     UserActionProto request = UserActionProto.newBuilder()
         .setUserId(userId)
         .setEventId(eventId)
         .setActionType(actionType)
-        .setTimestamp(Timestamp.newBuilder()
-            .setSeconds(now.getEpochSecond())
-            .setNanos(now.getNano())
-            .build())
+        .setTimestamp(getCurrentTimestamp())
         .build();
     client.collectUserAction(request);
+  }
+
+  private static Timestamp getCurrentTimestamp() {
+    Instant now = Instant.now();
+    return Timestamp.newBuilder()
+        .setSeconds(now.getEpochSecond())
+        .setNanos(now.getNano())
+        .build();
   }
 }

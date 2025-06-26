@@ -6,8 +6,10 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.client.CollectorClient;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.enums.StatusRequest;
+import ru.practicum.ewm.stats.action.ActionTypeProto;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.request.client.event.EventClient;
 import ru.practicum.request.client.user.UserClient;
@@ -23,12 +25,14 @@ public class RequestProcessingServiceImpl implements RequestProcessingService {
   private final RequestService requestService;
   private final UserClient userClient;
   private final EventClient eventClient;
+  private final CollectorClient collectorClient;
 
   @Override
   public ParticipationRequestDto addRequest(final Long userId, final Long eventId) {
     validateUserExistsById(userId);
     final EventFullDto event = getEvent(eventId);
     ParticipationRequest requestSaved = requestService.addRequest(userId, event);
+    sendUserAction(userId, eventId);
     return RequestMapper.mapToDto(requestSaved);
   }
 
@@ -96,6 +100,12 @@ public class RequestProcessingServiceImpl implements RequestProcessingService {
     final EventFullDto event = eventClient.getEvent(eventId);
     log.debug("Event with ID {} found in event-service.", eventId);
     return event;
+  }
+
+  private void sendUserAction(final Long userId, final Long eventId) {
+    log.info("Sending stat info about new User Action - REGISTER to event ID {} by user ID {}.", eventId, userId);
+    collectorClient.collectUserAction(userId, eventId, ActionTypeProto.ACTION_REGISTER);
+    log.info("User Action REGISTER successfully sent to collector service.");
   }
 
 }

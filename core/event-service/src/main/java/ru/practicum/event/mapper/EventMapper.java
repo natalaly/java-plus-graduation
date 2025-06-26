@@ -50,7 +50,7 @@ public class EventMapper {
         .setInitiator(event.getInitiator())
         .setPaid(event.getPaid())
         .setTitle(event.getTitle())
-        .setViews(event.getViews())
+        .setRating(event.getRating())
         .setCreatedOn(event.getCreatedOn())
         .setDescription(event.getDescription())
         .setLocation(LocationMapper.toDto(event.getLocation()))
@@ -72,7 +72,7 @@ public class EventMapper {
         event.getInitiator(),
         event.getPaid(),
         event.getTitle(),
-        event.getViews());
+        event.getRating());
   }
 
   public static List<EventShortDto> toShortDto(final Collection<Event> events) {

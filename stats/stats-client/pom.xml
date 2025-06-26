@@ -13,12 +13,6 @@
     <artifactId>stats-client</artifactId>
 
     <dependencies>
-<!--        TODO DELETE FEIGH CLIENT-->
-        <!--Feign Client-->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
         <!-- Spring Boot Actuator -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

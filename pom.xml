@@ -33,7 +33,6 @@
 		<avro.version>1.11.3</avro.version>
 		<kafka-clients.version>3.6.1</kafka-clients.version>
 		<com.querydsl.vesrion>5.1.0</com.querydsl.vesrion>
-<!--		<springdoc-openapi-starter.version>2.6.0</springdoc-openapi-starter.version>TODO NEED???-->
 		<grpc-spring-boot-starter.version>3.1.0.RELEASE</grpc-spring-boot-starter.version>
 		<protobuf.version>3.23.4</protobuf.version>
 		<grpc.version>1.63.0</grpc.version>
@@ -41,7 +40,6 @@
 		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
 		<avro-maven-plugin.version>${avro.version}</avro-maven-plugin.version>
 		<protobuf-plugin.version>2.4.0</protobuf-plugin.version>
-<!--		<build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>TODO NEEDD???-->
 	</properties>
 
 	<dependencyManagement>
@@ -62,22 +60,6 @@
 				<artifactId>avro</artifactId>
 				<version>${avro.version}</version>
 			</dependency>
-
-			<!-- Kafka clients for messaging -->
-<!--			<dependency>-->
-<!--				<groupId>org.apache.kafka</groupId>-->
-<!--				<artifactId>kafka-clients</artifactId>-->
-<!--				<version>${kafka-clients.version}</version>-->
-<!--			</dependency>-->
-			<!--			TODO need???????? -->
-
-			<!-- SpringDoc OpenAPI for API documentation -->
-<!--			<dependency>-->
-<!--				<groupId>org.springdoc</groupId>-->
-<!--				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>-->
-<!--				<version>${springdoc-openapi-starter.version}</version>-->
-<!--			</dependency>-->
-			<!--			TODO need???????? -->
 
 			<!-- gRPC dependencies management for microservices communication  -->
 			<dependency>

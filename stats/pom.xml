@@ -14,11 +14,6 @@
 
     <modules>
         <module>stats-client</module>
-<!--        TODO DELETE stats-server-->
-        <module>stats-server</module>
-<!--        TODO DELETE stats-dto-->
-        <module>stats-dto</module>
-
         <module>collector</module>
         <module>serialization</module>
         <module>aggregator</module>

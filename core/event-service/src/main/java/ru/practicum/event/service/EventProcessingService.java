@@ -43,7 +43,7 @@ public interface EventProcessingService {
   /**
    * Retrieves detailed information about a published event by its ID.
    */
-  EventFullDto getPublishedEvent(Long eventId);
+  EventFullDto getPublishedEventWithTracking(Long eventId, Long userId);
 
   /**
    * Retrieves all existed in DB events (performed by ADMIN).
@@ -77,4 +77,16 @@ public interface EventProcessingService {
    * Provides information wherever the vent with given ID exists in the system.
    */
   boolean eventExists(Long eventId);
+
+  /**
+   * Processes a user's like action for a specific event.
+   * <p>
+   * Validates whether the user has previously participated in the event.
+   */
+  void processLike(Long userId, Long eventId);
+
+  /**
+   * Returns a List of events recommended for the current user based on their activity history.
+   */
+  List<EventShortDto> getRecommendations(Long userId, Integer maxResults);
 }

@@ -28,7 +28,7 @@ public class EventShortDto {
   private UserShortDto initiator;
   private Boolean paid;
   private String title;
-  private Long views;
+  private Double rating;
 
   public EventShortDto(String annotation, CategoryDto category, LocalDateTime eventDate, Long id,
                        UserShortDto initiator, Boolean paid, String title) {
