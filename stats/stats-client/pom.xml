@@ -34,12 +34,6 @@
             <artifactId>proto-schemas</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <!-- DTO module dependency -->
-        <dependency>
-            <groupId>ru.practicum</groupId>
-            <artifactId>stats-dto</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
         <!-- Jackson for JSON handling -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -54,5 +48,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
 </project>
