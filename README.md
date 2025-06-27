@@ -16,7 +16,10 @@
   <img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/rest.png" alt="REST" width="60" height="60"/>
   <img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/hibernate.png" alt="Hibernate" width="60" height="60"/>
   <img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/swagger.png" alt="Swagger" width="60" height="60"/>
+  <img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/grpc.png" alt="gRPC" width="60" height="60"/>
+<img src="https://raw.githubusercontent.com/marwin1991/profile-technology-icons/refs/heads/main/icons/kafka.png" alt="Kafka" width="60" height="60"/>
 </p>
+
 
 
 
@@ -43,6 +46,8 @@ The application allows users to:
 - Browse event compilations
 - Comment on events
 - Allow administrators to manage categories, events, and users
+- Receive event recommendations based on interests and behavior
+- Like events, they have participated in
 
 ------------------------------------------------------------------------------------------
 ## Architecture
@@ -55,11 +60,11 @@ The system consists of three main services:
 | • Event lifecycle management<br> • Event creation, updates, deletion<br> • Event search and filtering | • User registration and authentication<br>• Profile management<br> | • User participation request processing<br> • Request approval and rejection by event organizerst<br> • Event capacity management | • User comments management<br>• Comment moderation<br>• Comment threading and replies |
 
 
-### 2. Stats Service
+### 2. Stats Service (Recommendations)
 
-|                                                                                                                                             |
-|:--------------------------------------------------------------------------------------------------------------------------------------------|
-| • Collects and logs all endpoint hit data<br>• Tracks unique visits and timestamps<br>• Provides aggregated statistics and view analytics   |
+| collector                                                 | aggregator                                                 | analyzer                                                                                                                                                                            |
+|:----------------------------------------------------------|------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| • Collects user actions via gRPC<br> • Publishes to Kafka | • Consumes Kafka topics<br> • Computes event similarities  | • Reads user actions & similarities from Kafka<br> • Stores all received computed data into DB<br> • Serves gRPC for:<br> $~~~~~~~~~~$recommendations<br>  $~~~~~~~~~~$ratings data |
 
 
 ### 3. Infrastructure Module (infra)
@@ -82,11 +87,11 @@ Configuration parameters for each service (ports, DB connections, Feign URLs) ar
 
 ### Service Interaction Matrix
 
-| From → To         | Core Service                                 | Stats Service                                | Infrastructure                             |
-|-------------------|----------------------------------------------|----------------------------------------------|--------------------------------------------|
-| **Core Service**  | -                                            | • Sends hit records<br>• Requests statistics | • Fetches config<br>• Service registration |
-| **Stats Service** | • Provides analytics<br>• Returns hit counts | -                                            | • Fetches config<br>• Service registration |
-| **Gateway**       | • Routes requests<br>• Load balancing        | -                                            | -                                          |
+| From → To         | Core Service                                      | Stats Service                                                     | Infrastructure                             |
+|-------------------|---------------------------------------------------|-------------------------------------------------------------------|--------------------------------------------|
+| **Core Service**  | -                                                 | • Sends User Action data<br>• Requests recommendation and ratings | • Fetches config<br>• Service registration |
+| **Stats Service** | • Provides analytics<br>• Returns recommendations | -                                                                 | • Fetches config<br>• Service registration |
+| **Gateway**       | • Routes requests<br>• Load balancing             | -                                                                 | -                                          |
 
 -----------------------------------------------------------------------------------
 
@@ -99,6 +104,8 @@ Configuration parameters for each service (ports, DB connections, Feign URLs) ar
     - **Spring Cloud Gateway** – Acts as an API Gateway for routing and filtering requests.
 - **OpenFeign** – Declarative REST clients for inter-service communication.
 - **REST** – Primary protocol for API communication between services.
+- **gRPC** - Inter-service communication for high-performance data exchange
+- **Apache Kafka** - Asynchronous messaging and stream processing
 - **Docker & Docker Compose** – For containerization and local orchestration of all services.
 - **PostgreSQL** – Main database used by various microservices.
 - **Lombok** – Reduces boilerplate code (getters, setters, etc.).
@@ -127,11 +134,9 @@ API specifications for the Event Management System are provided in OpenAPI 3.0 f
 The project includes comprehensive Postman collections for API testing, located in the `/postman` package:
 
 - [Main Service Collection][main-collection]
-- [Stats Service Collection][stats-collection]
 - [Feature Tests Collection][feature-collection]
 
 [main-collection]: ./postman/microservices/ewm-main-service.json
-[stats-collection]: ./postman/microservices/ewm-stat-service.json
 [feature-collection]: ./postman/microservices/feature.json
 
 
@@ -145,7 +150,6 @@ You can run the API tests in two ways:
     - Create a new environment
     - Add required variables:
         - `BASE_URL`: http://localhost:8080
-        - `STATS_URL`: http://localhost:8082
 3. Run collections through Postman interface:
 
 #### Option 2: Using Newman (CLI)
@@ -160,10 +164,6 @@ You can run the API tests in two ways:
        {
          "key": "BASE_URL",
          "value": "http://localhost:8080"
-       },
-       {
-         "key": "STATS_URL",
-         "value": "http://localhost:8082"
        }
      ]
    }
@@ -171,8 +171,33 @@ You can run the API tests in two ways:
 3. Run collections via the command line:
    ```bash
    newman run ./postman/microservices/ewm-main-service.json -e environment.json
-   newman run ./postman/microservices/ewm-stat-service.json -e environment.json
    newman run ./postman/microservices/feature.json -e environment.json
    ```
 
 -----------------------------------------------------------------------------------
+### Tester Recommendations Service:
+#### Download:
+- [Tester][tester]
+
+[tester]:./tester-0.0.1.jar
+
+#### Run via the command line:
+```bash
+java -jar tester.jar --tester.execution.mode=COLLECTION --tester.execution.output.file-path=./report.txt
+```
+#### Testing  mode:
+  - COLLECTION   – только collector
+  - AGGREGATION  – collector + aggregator
+  - ANALYZE      – collector + aggregator + analyzer
+tester.execution.mode: ANALYZE
+
+#### Output Settings
+- `tester.execution.immediate-logging.enabled=true`
+- `tester.execution.output.info-enabled`: **true**
+- `tester.execution.output.trace-enabled`: **true**
+- `tester.execution.output.print`: **true**
+- `tester.execution.output.file`: **true**
+- `tester.execution.output.file-path`: `"./execution-report.txt"`
+
+
+
