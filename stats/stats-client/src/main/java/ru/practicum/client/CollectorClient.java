@@ -24,7 +24,10 @@ public class CollectorClient {
         .setActionType(actionType)
         .setTimestamp(getCurrentTimestamp())
         .build();
+    log.debug("Sending gRPC UserAction: {}.", request);
     client.collectUserAction(request);
+    log.debug("Success with gRPC call to Collector for userID={}, eventID={}, action={}.",
+        userId, eventId, actionType);
   }
 
   private static Timestamp getCurrentTimestamp() {

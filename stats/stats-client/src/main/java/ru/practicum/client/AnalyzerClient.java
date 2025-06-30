@@ -26,7 +26,9 @@ public class AnalyzerClient {
         .setUserId(userId)
         .setMaxResults(maxResults)
         .build();
+    log.debug("Sending recommendations request for userID={} with maxResults={}.", userId, maxResults);
     Iterator<RecommendedEventProto> iterator = client.getRecommendationsForUser(request);
+    log.debug("Received recommendation stream for userID={}.", userId);
     return asStream(iterator);
   }
 
@@ -36,7 +38,9 @@ public class AnalyzerClient {
         .setUserId(userId)
         .setMaxResults(maxResults)
         .build();
+    log.debug("Sending similar events request for eventID={} and userID={} with maxResults={}.", eventId, userId, maxResults);
     Iterator<RecommendedEventProto> iterator = client.getSimilarEvents(request);
+    log.debug("Received recommended events stream for eventID={} and userID={}.", eventId, userId);
     return asStream(iterator);
   }
 
@@ -44,7 +48,9 @@ public class AnalyzerClient {
     InteractionsCountRequestProto request = InteractionsCountRequestProto.newBuilder()
         .addAllEventId(eventIds)
         .build();
+    log.debug("Sending interactions count request for events with IDs={}.", eventIds);
     Iterator<RecommendedEventProto> iterator = client.getInteractionsCount(request);
+    log.debug("Received event stream for events with IDs={}.", eventIds);
     return asStream(iterator);
   }
 

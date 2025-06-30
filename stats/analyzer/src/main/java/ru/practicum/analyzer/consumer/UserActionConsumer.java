@@ -34,7 +34,7 @@ public class UserActionConsumer implements Runnable {
   @Override
   public void run() {
     log.info("Starting listening for User Action messages.");
-    Runtime.getRuntime().addShutdownHook(new Thread(kafkaUserActionsConsumer::wakeup));
+    Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
     try {
       kafkaUserActionsConsumer.subscribe(topics);
       log.debug("Consumer {} subscribed for the topics {}.", kafkaUserActionsConsumer.getClass().getName(), topics);
@@ -87,5 +87,10 @@ public class UserActionConsumer implements Runnable {
       log.info("Closing Kafka consumer {}.", kafkaUserActionsConsumer.getClass().getName());
       kafkaUserActionsConsumer.close();
     }
+  }
+
+  private void shutdown() {
+    stopped = true;
+    kafkaUserActionsConsumer.wakeup();
   }
 }

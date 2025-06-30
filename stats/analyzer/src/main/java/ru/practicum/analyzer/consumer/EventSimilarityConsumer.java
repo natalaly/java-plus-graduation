@@ -34,7 +34,7 @@ public class EventSimilarityConsumer implements Runnable {
   @Override
   public void run() {
     log.info("Starting listening for Event Similarity messages.");
-    Runtime.getRuntime().addShutdownHook(new Thread(kafkaSimilarityConsumer::wakeup));
+    Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
     try {
       kafkaSimilarityConsumer.subscribe(topics);
       log.debug("Consumer {} subscribed for the topics {}.", kafkaSimilarityConsumer.getClass().getName(), topics);
@@ -87,5 +87,10 @@ public class EventSimilarityConsumer implements Runnable {
       log.info("Closing Kafka consumer {}.", kafkaSimilarityConsumer.getClass().getName());
       kafkaSimilarityConsumer.close();
     }
+  }
+
+  private void shutdown() {
+    stopped = true;
+    kafkaSimilarityConsumer.wakeup();
   }
 }

@@ -44,7 +44,7 @@ public class RecommendationsServiceImpl implements RecommendationsService {
 //    Stage 1: Selecting events, given user has not yet interacted with
 
 //    1. Getting recent interactions (limit to N_RECENT_INTERACTIONS_LIMIT)
-    final List<UserAction> recentUserActions = getRecentUserInteractions(userId, N_RECENT_INTERACTIONS_LIMIT);
+    final List<UserAction> recentUserActions = getRecentUserInteractions(userId);
     if (recentUserActions.isEmpty()) {
       log.info("User ID {} has no recent interactions. Returning empty recommendations.", userId);
       return List.of();
@@ -175,10 +175,10 @@ public class RecommendationsServiceImpl implements RecommendationsService {
   }
 
 
-  private List<UserAction> getRecentUserInteractions(final Long userId, final int maxResults) {
+  private List<UserAction> getRecentUserInteractions(final Long userId) {
     log.debug("Getting recent user interactions for user ID: {} with maxResults: {}", userId,
-        maxResults);
-    final PageRequest pageable = PageRequest.of(0, maxResults);
+        N_RECENT_INTERACTIONS_LIMIT);
+    final PageRequest pageable = PageRequest.of(0, N_RECENT_INTERACTIONS_LIMIT);
     final List<UserAction> result = userActionRepository.findByUserIdOrderByTimestampDesc(userId,
         pageable);
     log.trace("Found {} recent user interactions for user ID: {}.", result.size(), userId);
