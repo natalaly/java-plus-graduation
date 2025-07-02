@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package stats.message;
+
+option java_multiple_files = true;
+option java_package = "ru.practicum.ewm.stats.recommendation";
+
+message UserPredictionsRequestProto {
+  int64 user_id = 1;             // user ID, to generate recommendations for
+  int64 max_results = 2;         // max number of events to return
+}
+
+message SimilarEventsRequestProto {
+  int64 event_id =1;            // ID of the reference event
+  int64 user_id = 2;            // user ID, to exclude interacted events for
+  int64 max_results = 3;        // max number of events to return
+}
+
+message InteractionsCountRequestProto{
+  repeated int64 event_id =1;   // events list to return total sum of interaction
+}
+
+message  RecommendedEventProto  {
+  int64 event_id =1;            // recommended event ID.
+  double score = 2;             // predicted rating, OR similarity score, OR sum of action weights
+}

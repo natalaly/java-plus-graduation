@@ -48,7 +48,7 @@ public class EventFullDto {
   private Boolean requestModeration = true;
   private String state;
   private String title;
-  private Long views;
+  private Double rating;
 
   public EventFullDto(String annotation, CategoryDto category, Integer confirmedRequests,
                       LocalDateTime createdOn,

@@ -1,0 +1,10 @@
+@namespace("ru.practicum.ewm.stats.avro")
+protocol EventSimilarityPotocol {
+
+	record EventSimilarityAvro {
+		long eventA; 			// ID of event A
+		long eventB;			// ID of event B
+		double  score;			// calculated similarity of events
+		timestamp_ms timestamp;	//timestamp , when the action  that triggered the recalculation was performed
+	}
+}

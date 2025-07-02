@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableFeignClients
 @SpringBootApplication
 @ComponentScan(basePackages = {
-    "ru.practicum.request",
+    "ru.practicum",
     "ru.practicum.exception.handler"
 })
 public class RequestServiceApp {

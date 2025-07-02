@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: aggregator
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    topics:
+      user-action: stats.user-actions.v1
+      event-similarity: stats.events-similarity.v1
+
+    consumer:
+      group-id: stats.aggregator
+      auto-offset-reset: earliest
+
+#grpc:
+#  server:
+#    port: 0
+
+server:
+  port: 0
+
+logging:
+  level:
+    ru.practicum: TRACE
+    org.springframework.kafka: DEBUG
+    io.grpc: DEBUG
+
+

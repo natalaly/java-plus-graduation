@@ -89,5 +89,5 @@ public class Event {
   private Integer confirmedRequests = 0;
 
   @Transient
-  private Long views = 0L;
+  private Double rating = 0.0;
 }

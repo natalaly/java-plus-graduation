@@ -8,11 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.EndPointHitDto;
-import ru.practicum.StatsClient;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.GetEventPublicParam;
@@ -25,8 +25,9 @@ import ru.practicum.event.service.EventProcessingService;
 @RequiredArgsConstructor
 public class PublicEventController {
 
+  private static final String USER_ID_HEADER = "X-EWM-USER-ID";
+
   private final EventProcessingService eventService;
-  private final StatsClient statsClient;
 
   @GetMapping
   public List<EventShortDto> getEvents(@RequestParam(value = "text", required = false) String text,
@@ -36,8 +37,7 @@ public class PublicEventController {
                                        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                        @RequestParam(value = "rangeEnd", required = false)
                                        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-                                       @RequestParam(value = "onlyAvailable", required = false, defaultValue = "false")
-                                       boolean onlyAvailable,
+                                       @RequestParam(value = "onlyAvailable", required = false, defaultValue = "false") boolean onlyAvailable,
                                        @RequestParam(value = "sort", required = false) SortType sort,
                                        @RequestParam(value = "from", required = false, defaultValue = "0") int from,
                                        @RequestParam(value = "size", required = false, defaultValue = "10") int size,
@@ -56,27 +56,31 @@ public class PublicEventController {
     log.info("Request received GET /events with params {}", params);
     List<EventShortDto> events = eventService.getEvents(params, request);
     log.info("Events received: {}", events);
-    saveHitStatistic(request);
     return events;
   }
 
   @GetMapping("/{eventId}")
-  public EventFullDto getEventsById(@PathVariable Long eventId, HttpServletRequest request) {
+  public EventFullDto getEventsById(@RequestHeader(USER_ID_HEADER) Long userId,
+                                    @PathVariable Long eventId) {
     log.info("Request received GET /events with id {}", eventId);
-    EventFullDto event = eventService.getPublishedEvent(eventId);
+    EventFullDto event = eventService.getPublishedEventWithTracking(eventId, userId);
     log.info("Event received: {}", event);
-    saveHitStatistic(request);
     return event;
   }
 
-  private void saveHitStatistic(HttpServletRequest request) {
-    log.info("Sending endpoint hit statistic info.");
-    EndPointHitDto hitDto = new EndPointHitDto();
-    hitDto.setApp("explore-with-me");
-    hitDto.setUri(request.getRequestURI());
-    hitDto.setIp(request.getRemoteAddr());
-    hitDto.setRequestTime(LocalDateTime.now());
-    statsClient.saveEndpointHit(hitDto);
-    log.info("Endpoint hit action saved.");
+  @PutMapping("/{eventId}/like")
+  public void addLike(@RequestHeader(USER_ID_HEADER) Long userId, @PathVariable Long eventId) {
+    log.info("Request received PUT /events/{}/like from user with ID {}.", eventId, userId);
+    eventService.processLike(userId, eventId);
+    log.info("Event Like successfully registered for event{} from user {}.", eventId, userId);
+  }
+
+  @GetMapping("/recommendations")
+  public List<EventShortDto> getRecommendations(@RequestHeader(USER_ID_HEADER) Long userId,
+                                                @RequestParam(value = "maxResults", defaultValue = "10") Integer maxResults) {
+    log.info("Request received GET /events/recommendations to get event recommendations for user ID {}.", userId);
+    List<EventShortDto> events = eventService.getRecommendations(userId, maxResults);
+    log.info("Returning {} events to recommend for user {}.", events.size(), userId);
+    return events;
   }
 }
